@@ -1,2 +1,0 @@
-- port to python 3
-- refactor the client to simplify the code

@@ -1,4 +1,0 @@
-distribute
-nose
-nose-cover3
-mock>=0.7.0

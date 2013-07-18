@@ -1,8 +1,0 @@
-django
-openpyxl
-python-dateutil
-pytz
-couchdbkit
-django_redis
-simplejson
-Pillow
