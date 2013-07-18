@@ -1,0 +1,6 @@
+[celery.commands]
+mon = celerymon.bin.celerymon:MonitorDelegate
+
+[console_scripts]
+celerymon = celerymon.bin.celerymon:main
+
