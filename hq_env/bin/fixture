@@ -1,0 +1,9 @@
+#!/home/dmyung/src/commcarehq-venv/hq_env/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'fixture==1.5','console_scripts','fixture'
+__requires__ = 'fixture==1.5'
+import sys
+from pkg_resources import load_entry_point
+
+sys.exit(
+   load_entry_point('fixture==1.5', 'console_scripts', 'fixture')()
+)
