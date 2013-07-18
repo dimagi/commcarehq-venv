@@ -1,0 +1,7 @@
+include *.py
+include *.txt
+include *.rst
+include Makefile
+recursive-include Lib  *.py
+recursive-include Modules  *.c *.h
+recursive-include Doc  *.rst *.py

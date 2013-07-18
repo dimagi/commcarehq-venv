@@ -1,0 +1,6 @@
+include LICENSE
+include README.rst
+include distribute_setup.py
+recursive-include docs *
+recursive-include tests/data *
+recursive-include tests *

@@ -1,0 +1,132 @@
+restkit (3.3.0-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Mon, 20 Jun 2011 17:25:00 +0100
+
+restkit (3.2.3-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Tue, 05 Apr 2011 21:12:00 +0100
+
+restkit (3.2.2-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Tue, 05 Apr 2011 10:47:00 +0100
+
+restkit (3.2.1-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 22 MAr 2011 10:19:00 +0100
+
+restkit (3.2.0-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 18 Feb 2011 19:18:00 +0100
+
+restkit (3.1.0-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 11 Feb 2011 21:37:00 +0100
+
+restkit (3.0.4-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 07 Feb 2011 17:03:00 +0100
+
+restkit (3.0.3-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 07 Feb 2011 11:09:00 +0100
+
+restkit (3.0.2-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 03 Feb 2011 21:33:00 +0100
+
+restkit (3.0-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 03 Feb 2011 13:43:00 +0100
+
+restkit (2.3.3-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Wed, 17 Dec 2010 01:43:00 +0100
+
+restkit (2.3.2-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Wed, 15 Dec 2010 23:00:00 +0100
+
+restkit (2.3.1-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 26 Nov 2010 08:31:00 +0100
+
+restkit (2.3.0-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 25 Nov 2010 14:39:00 +0100
+
+restkit (2.2.2-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 16 Oct 2010 17:30:00 +0100
+
+restkit (2.2.0-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 14 Sep 2010 20:50:00 +0100
+
+restkit (2.1.7-1) karmic; urgency=low
+
+  * bump version 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 06 Sep 2010 03:51:00 -0700
+
+restkit (2.1.5-1) karmic; urgency=low
+
+  * Fix NoMoreData error on 0 Content-Length
+  * Fix oauth issue. 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 02 Sep 2010 22:51:00 +0100
+
+restkit (2.1.5-1) karmic; urgency=low
+
+  * Bump releaase 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Fri, 27 Aug 2010 04:16:00 +0100
+
+restkit (2.1.2-1) karmic; urgency=low
+
+  * Fix multiple headers in filters on_request 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Tue, 10 Aug 2010 22:53:00 +0100
+
+restkit (2.1.1-1) karmic; urgency=low
+
+  * New release 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Thu, 05 Aug 2010 18:38:00 +0100
+
+restkit (0.9.4-1) karmic; urgency=low
+
+  * Initial release 
+
+ -- Benoit Chesneau <benoitc@e-engura.org>  Mon, 22 Feb 2010 08:06:28 +0100

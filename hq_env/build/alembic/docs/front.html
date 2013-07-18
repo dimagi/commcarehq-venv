@@ -1,0 +1,185 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Front Matter &mdash; Alembic 0.5.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Alembic 0.5.0 documentation" href="index.html" />
+    <link rel="next" title="Tutorial" href="tutorial.html" />
+    <link rel="prev" title="Welcome to Alembic’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Alembic’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Alembic 0.5.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="front-matter">
+<h1>Front Matter<a class="headerlink" href="#front-matter" title="Permalink to this headline">¶</a></h1>
+<p>Information about the Alembic project.</p>
+<div class="section" id="project-homepage">
+<h2>Project Homepage<a class="headerlink" href="#project-homepage" title="Permalink to this headline">¶</a></h2>
+<p>Alembic is hosted on <a class="reference external" href="http://bitbucket.org">Bitbucket</a> - the lead project
+page is at <a class="reference external" href="https://bitbucket.org/zzzeek/alembic">https://bitbucket.org/zzzeek/alembic</a>. Source code is tracked here
+using <a class="reference external" href="http://mercurial.selenic.com/">Mercurial</a>.</p>
+<p>Releases and project status are available on Pypi at
+<a class="reference external" href="http://pypi.python.org/pypi/alembic">http://pypi.python.org/pypi/alembic</a>.</p>
+<p>The most recent published version of this documentation should be at
+<a class="reference external" href="http://alembic.readthedocs.org/">http://alembic.readthedocs.org/</a>.</p>
+</div>
+<div class="section" id="project-status">
+<h2>Project Status<a class="headerlink" href="#project-status" title="Permalink to this headline">¶</a></h2>
+<p>Alembic is currently in beta status and is expected to be fairly
+stable.   Users should take care to report bugs and missing features
+(see <a class="reference internal" href="#bugs"><em>Bugs</em></a>) on an as-needed
+basis.  It should be expected that the development version may be required
+for proper implementation of recently repaired issues in between releases;
+the latest default tip is always available at <a class="reference external" href="https://bitbucket.org/zzzeek/alembic/get/default.tar.gz">https://bitbucket.org/zzzeek/alembic/get/default.tar.gz</a>.</p>
+</div>
+<div class="section" id="installation">
+<span id="id1"></span><h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Install released versions of Alembic from the Python package index with <a class="reference external" href="http://pypi.python.org/pypi/pip">pip</a> or a similar tool:</p>
+<div class="highlight-python"><pre>pip install alembic</pre>
+</div>
+<p>Installation via source distribution is via the <tt class="docutils literal"><span class="pre">setup.py</span></tt> script:</p>
+<div class="highlight-python"><pre>python setup.py install</pre>
+</div>
+<p>The install will add the <tt class="docutils literal"><span class="pre">alembic</span></tt> command to the environment.  All operations with Alembic
+then proceed through the usage of this command.</p>
+<div class="section" id="dependencies">
+<h3>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h3>
+<p>Alembic&#8217;s install process will ensure that <a class="reference external" href="http://www.sqlalchemy.org">SQLAlchemy</a>
+is installed, in addition to other dependencies.  Alembic will work with
+SQLAlchemy as of version <strong>0.7.3</strong>.   The latest version of SQLAlchemy within
+the <strong>0.7</strong> or <strong>0.8</strong> series is strongly recommended.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5.0: </span>Support for SQLAlchemy 0.6 has been dropped.</p>
+</div>
+</div>
+<div class="section" id="community">
+<h2>Community<a class="headerlink" href="#community" title="Permalink to this headline">¶</a></h2>
+<p>Alembic is developed by <a class="reference external" href="http://techspot.zzzeek.org">Mike Bayer</a>, and is
+loosely associated with the <a class="reference external" href="http://www.sqlalchemy.org/">SQLAlchemy</a> and <a class="reference external" href="http://www.pylonsproject.org">Pylons</a>
+projects.</p>
+<p>User issues, discussion of potential bugs and features should be posted
+to the Alembic Google Group at <a class="reference external" href="https://groups.google.com/group/sqlalchemy-alembic">sqlalchemy-alembic</a>.</p>
+</div>
+<div class="section" id="bugs">
+<span id="id3"></span><h2>Bugs<a class="headerlink" href="#bugs" title="Permalink to this headline">¶</a></h2>
+<p>Bugs and feature enhancements to Alembic should be reported on the <a class="reference external" href="https://bitbucket.org/zzzeek/alembic/issues?status=new&amp;status=open">Bitbucket
+issue tracker</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Front Matter</a><ul>
+<li><a class="reference internal" href="#project-homepage">Project Homepage</a></li>
+<li><a class="reference internal" href="#project-status">Project Status</a></li>
+<li><a class="reference internal" href="#installation">Installation</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#community">Community</a></li>
+<li><a class="reference internal" href="#bugs">Bugs</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Alembic&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="next chapter">Tutorial</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/front.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Alembic’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Alembic 0.5.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Mike Bayer.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

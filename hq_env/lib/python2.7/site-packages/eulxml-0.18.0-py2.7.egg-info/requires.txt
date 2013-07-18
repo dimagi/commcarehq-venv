@@ -1,0 +1,8 @@
+ply
+lxml
+
+[rdf]
+rdflib>=3.0
+
+[django]
+Django

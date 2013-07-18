@@ -1,0 +1,25 @@
+Metadata-Version: 1.1
+Name: django-digest
+Version: 1.13
+Summary: An implementation of HTTP Digest Authentication for Django.
+Home-page: http://bitbucket.org/akoha/django-digest/
+Author: Akoha Inc.
+Author-email: adminmail@akoha.com
+License: UNKNOWN
+Description: 
+        django-digest supplies a middleware (HttpDigestMiddleware) that may installed to protect access
+        to all URLs, a decorator (@httpdigest) that may be applied to selected view functions, and a
+        simple class (HttpDigestAuthenticator) that can be used to implement custom authentication
+        scenarios.
+        
+        django-digest also supplies a subclass of django.test.Client that is able to perform Digest and
+        Basic authentication.
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Software Development :: Libraries :: Python Modules

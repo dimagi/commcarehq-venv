@@ -1,0 +1,9 @@
+README.txt
+setup.cfg
+errorhandler/__init__.py
+errorhandler/tests.py
+pip-egg-info/errorhandler.egg-info/PKG-INFO
+pip-egg-info/errorhandler.egg-info/SOURCES.txt
+pip-egg-info/errorhandler.egg-info/dependency_links.txt
+pip-egg-info/errorhandler.egg-info/not-zip-safe
+pip-egg-info/errorhandler.egg-info/top_level.txt

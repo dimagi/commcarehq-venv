@@ -1,0 +1,937 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Operation Reference &mdash; Alembic 0.5.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Alembic 0.5.0 documentation" href="index.html" />
+    <link rel="next" title="API Details" href="api.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Details"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Alembic 0.5.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="operation-reference">
+<span id="ops"></span><h1>Operation Reference<a class="headerlink" href="#operation-reference" title="Permalink to this headline">¶</a></h1>
+<p>This file provides documentation on Alembic migration directives.</p>
+<p>The directives here are used within user-defined migration files,
+within the <tt class="docutils literal"><span class="pre">upgrade()</span></tt> and <tt class="docutils literal"><span class="pre">downgrade()</span></tt> functions, as well as
+any functions further invoked by those.</p>
+<p>All directives exist as methods on a class called <a class="reference internal" href="#alembic.operations.Operations" title="alembic.operations.Operations"><tt class="xref py py-class docutils literal"><span class="pre">Operations</span></tt></a>.
+When migration scripts are run, this object is made available
+to the script via the <tt class="docutils literal"><span class="pre">alembic.op</span></tt> datamember, which is
+a <em>proxy</em> to an actual instance of <a class="reference internal" href="#alembic.operations.Operations" title="alembic.operations.Operations"><tt class="xref py py-class docutils literal"><span class="pre">Operations</span></tt></a>.
+Currently, <tt class="docutils literal"><span class="pre">alembic.op</span></tt> is a real Python module, populated
+with individual proxies for each method on <a class="reference internal" href="#alembic.operations.Operations" title="alembic.operations.Operations"><tt class="xref py py-class docutils literal"><span class="pre">Operations</span></tt></a>,
+so symbols can be imported safely from the <tt class="docutils literal"><span class="pre">alembic.op</span></tt> namespace.</p>
+<p>A key design philosophy to the <a class="reference internal" href="#module-alembic.operations" title="alembic.operations"><tt class="xref py py-mod docutils literal"><span class="pre">alembic.operations</span></tt></a> methods is that
+to the greatest degree possible, they internally generate the
+appropriate SQLAlchemy metadata, typically involving
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a> and <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Constraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Constraint</span></tt></a>
+objects.  This so that migration instructions can be
+given in terms of just the string names and/or flags involved.
+The exceptions to this
+rule include the <a class="reference internal" href="#alembic.operations.Operations.add_column" title="alembic.operations.Operations.add_column"><tt class="xref py py-meth docutils literal"><span class="pre">add_column()</span></tt></a> and <a class="reference internal" href="#alembic.operations.Operations.create_table" title="alembic.operations.Operations.create_table"><tt class="xref py py-meth docutils literal"><span class="pre">create_table()</span></tt></a>
+directives, which require full <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Column" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a>
+objects, though the table metadata is still generated here.</p>
+<p>The functions here all require that a <a class="reference internal" href="api.html#alembic.migration.MigrationContext" title="alembic.migration.MigrationContext"><tt class="xref py py-class docutils literal"><span class="pre">MigrationContext</span></tt></a> has been
+configured within the <tt class="docutils literal"><span class="pre">env.py</span></tt> script first, which is typically
+via <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.configure" title="alembic.environment.EnvironmentContext.configure"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.configure()</span></tt></a>.   Under normal
+circumstances they are called from an actual migration script, which
+itself would be invoked by the <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.run_migrations" title="alembic.environment.EnvironmentContext.run_migrations"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.run_migrations()</span></tt></a>
+method.</p>
+<span class="target" id="module-alembic.operations"></span><dl class="class">
+<dt id="alembic.operations.Operations">
+<em class="property">class </em><tt class="descclassname">alembic.operations.</tt><tt class="descname">Operations</tt><big>(</big><em>migration_context</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define high level migration operations.</p>
+<p>Each operation corresponds to some schema migration operation,
+executed against a particular <a class="reference internal" href="api.html#alembic.migration.MigrationContext" title="alembic.migration.MigrationContext"><tt class="xref py py-class docutils literal"><span class="pre">MigrationContext</span></tt></a>
+which in turn represents connectivity to a database,
+or a file output stream.</p>
+<p>While <a class="reference internal" href="#alembic.operations.Operations" title="alembic.operations.Operations"><tt class="xref py py-class docutils literal"><span class="pre">Operations</span></tt></a> is normally configured as
+part of the <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.run_migrations" title="alembic.environment.EnvironmentContext.run_migrations"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.run_migrations()</span></tt></a>
+method called from an <tt class="docutils literal"><span class="pre">env.py</span></tt> script, a standalone
+<a class="reference internal" href="#alembic.operations.Operations" title="alembic.operations.Operations"><tt class="xref py py-class docutils literal"><span class="pre">Operations</span></tt></a> instance can be
+made for use cases external to regular Alembic
+migrations by passing in a <a class="reference internal" href="api.html#alembic.migration.MigrationContext" title="alembic.migration.MigrationContext"><tt class="xref py py-class docutils literal"><span class="pre">MigrationContext</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic.migration</span> <span class="kn">import</span> <span class="n">MigrationContext</span>
+<span class="kn">from</span> <span class="nn">alembic.operations</span> <span class="kn">import</span> <span class="n">Operations</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">myengine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">ctx</span> <span class="o">=</span> <span class="n">MigrationContext</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">conn</span><span class="p">)</span>
+<span class="n">op</span> <span class="o">=</span> <span class="n">Operations</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+
+<span class="n">op</span><span class="o">.</span><span class="n">alter_column</span><span class="p">(</span><span class="s">&quot;t&quot;</span><span class="p">,</span> <span class="s">&quot;c&quot;</span><span class="p">,</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Construct a new <a class="reference internal" href="#alembic.operations.Operations" title="alembic.operations.Operations"><tt class="xref py py-class docutils literal"><span class="pre">Operations</span></tt></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>migration_context</strong> &#8211; a <a class="reference internal" href="api.html#alembic.migration.MigrationContext" title="alembic.migration.MigrationContext"><tt class="xref py py-class docutils literal"><span class="pre">MigrationContext</span></tt></a>
+instance.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="alembic.operations.Operations.add_column">
+<tt class="descname">add_column</tt><big>(</big><em>table_name</em>, <em>column</em>, <em>schema=None</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.add_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue an &#8220;add column&#8221; instruction using the current
+migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">String</span>
+
+<span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">&#39;organization&#39;</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">())</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The provided <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Column" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a> object can also
+specify a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.ForeignKey" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">ForeignKey</span></tt></a>, referencing
+a remote table name.  Alembic will automatically generate a stub
+&#8220;referenced&#8221; table and emit a second ALTER statement in order
+to add the constraint separately:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="n">ForeignKey</span>
+
+<span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">&#39;organization&#39;</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;account_id&#39;</span><span class="p">,</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="n">ForeignKey</span><span class="p">(</span><span class="s">&#39;accounts.id&#39;</span><span class="p">))</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that this statement uses the <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Column" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a>
+construct as is from the SQLAlchemy library.  In particular,
+default values to be created on the database side are
+specified using the <tt class="docutils literal"><span class="pre">server_default</span></tt> parameter, and not
+<tt class="docutils literal"><span class="pre">default</span></tt> which only specifies Python-side defaults:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">TIMESTAMP</span><span class="p">,</span> <span class="n">func</span>
+
+<span class="c"># specify &quot;DEFAULT NOW&quot; along with the column add</span>
+<span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">&#39;account&#39;</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;timestamp&#39;</span><span class="p">,</span> <span class="n">TIMESTAMP</span><span class="p">,</span> <span class="n">server_default</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> &#8211; String name of the parent table.</li>
+<li><strong>column</strong> &#8211; a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Column" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">sqlalchemy.schema.Column</span></tt></a> object
+representing the new column.</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.alter_column">
+<tt class="descname">alter_column</tt><big>(</big><em>table_name</em>, <em>column_name</em>, <em>nullable=None</em>, <em>server_default=False</em>, <em>new_column_name=None</em>, <em>type_=None</em>, <em>autoincrement=None</em>, <em>existing_type=None</em>, <em>existing_server_default=False</em>, <em>existing_nullable=None</em>, <em>existing_autoincrement=None</em>, <em>schema=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.alter_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue an &#8220;alter column&#8221; instruction using the
+current migration context.</p>
+<p>Generally, only that aspect of the column which
+is being changed, i.e. name, type, nullability,
+default, needs to be specified.  Multiple changes
+can also be specified at once and the backend should
+&#8220;do the right thing&#8221;, emitting each change either
+separately or together as the backend allows.</p>
+<p>MySQL has special requirements here, since MySQL
+cannot ALTER a column without a full specification.
+When producing MySQL-compatible migration files,
+it is recommended that the <tt class="docutils literal"><span class="pre">existing_type</span></tt>,
+<tt class="docutils literal"><span class="pre">existing_server_default</span></tt>, and <tt class="docutils literal"><span class="pre">existing_nullable</span></tt>
+parameters be present, if not being altered.</p>
+<p>Type changes which are against the SQLAlchemy
+&#8220;schema&#8221; types <a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Boolean" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Boolean</span></tt></a>
+and  <a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Enum" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Enum</span></tt></a> may also
+add or drop constraints which accompany those
+types on backends that don&#8217;t support them natively.
+The <tt class="docutils literal"><span class="pre">existing_server_default</span></tt> argument is
+used in this case as well to remove a previous
+constraint.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> &#8211; string name of the target table.</li>
+<li><strong>column_name</strong> &#8211; string name of the target column,
+as it exists before the operation begins.</li>
+<li><strong>nullable</strong> &#8211; Optional; specify <tt class="docutils literal"><span class="pre">True</span></tt> or <tt class="docutils literal"><span class="pre">False</span></tt>
+to alter the column&#8217;s nullability.</li>
+<li><strong>server_default</strong> &#8211; Optional; specify a string
+SQL expression, <a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.text" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">text()</span></tt></a>,
+or <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.DefaultClause" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">DefaultClause</span></tt></a> to indicate
+an alteration to the column&#8217;s default value.
+Set to <tt class="docutils literal"><span class="pre">None</span></tt> to have the default removed.</li>
+<li><strong>new_column_name</strong> &#8211; <p>Optional; specify a string name here to
+indicate the new name within a column rename operation.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5.0: </span>The <tt class="docutils literal"><span class="pre">name</span></tt> parameter is now named <tt class="docutils literal"><span class="pre">new_column_name</span></tt>.
+The old name will continue to function for backwards
+compatibility.</p>
+</li>
+<li><strong>type_</strong> &#8211; Optional; a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">TypeEngine</span></tt></a>
+type object to specify a change to the column&#8217;s type.
+For SQLAlchemy types that also indicate a constraint (i.e.
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Boolean" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Boolean</span></tt></a>, <a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Enum" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Enum</span></tt></a>),
+the constraint is also generated.</li>
+<li><strong>autoincrement</strong> &#8211; set the <tt class="docutils literal"><span class="pre">AUTO_INCREMENT</span></tt> flag of the column;
+currently understood by the MySQL dialect.</li>
+<li><strong>existing_type</strong> &#8211; Optional; a
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">TypeEngine</span></tt></a>
+type object to specify the previous type.   This
+is required for all MySQL column alter operations that
+don&#8217;t otherwise specify a new type, as well as for
+when nullability is being changed on a SQL Server
+column.  It is also used if the type is a so-called
+SQLlchemy &#8220;schema&#8221; type which may define a constraint (i.e.
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Boolean" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Boolean</span></tt></a>,
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Enum" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Enum</span></tt></a>),
+so that the constraint can be dropped.</li>
+<li><strong>existing_server_default</strong> &#8211; Optional; The existing
+default value of the column.   Required on MySQL if
+an existing default is not being changed; else MySQL
+removes the default.</li>
+<li><strong>existing_nullable</strong> &#8211; Optional; the existing nullability
+of the column.  Required on MySQL if the existing nullability
+is not being changed; else MySQL sets this to NULL.</li>
+<li><strong>existing_autoincrement</strong> &#8211; Optional; the existing autoincrement
+of the column.  Used for MySQL&#8217;s system of altering a column
+that specifies <tt class="docutils literal"><span class="pre">AUTO_INCREMENT</span></tt>.</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.bulk_insert">
+<tt class="descname">bulk_insert</tt><big>(</big><em>table</em>, <em>rows</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.bulk_insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;bulk insert&#8221; operation using the current
+migration context.</p>
+<p>This provides a means of representing an INSERT of multiple rows
+which works equally well in the context of executing on a live
+connection as well as that of generating a SQL script.   In the
+case of a SQL script, the values are rendered inline into the
+statement.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="kn">import</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">String</span><span class="p">,</span> <span class="n">Integer</span><span class="p">,</span> <span class="n">Date</span>
+
+<span class="c"># Create an ad-hoc table to use for the insert statement.</span>
+<span class="n">accounts_table</span> <span class="o">=</span> <span class="n">table</span><span class="p">(</span><span class="s">&#39;account&#39;</span><span class="p">,</span>
+    <span class="n">column</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">),</span>
+    <span class="n">column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">),</span>
+    <span class="n">column</span><span class="p">(</span><span class="s">&#39;create_date&#39;</span><span class="p">,</span> <span class="n">Date</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">bulk_insert</span><span class="p">(</span><span class="n">accounts_table</span><span class="p">,</span>
+    <span class="p">[</span>
+        <span class="p">{</span><span class="s">&#39;id&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;John Smith&#39;</span><span class="p">,</span>
+                <span class="s">&#39;create_date&#39;</span><span class="p">:</span><span class="n">date</span><span class="p">(</span><span class="mi">2010</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span>
+        <span class="p">{</span><span class="s">&#39;id&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;Ed Williams&#39;</span><span class="p">,</span>
+                <span class="s">&#39;create_date&#39;</span><span class="p">:</span><span class="n">date</span><span class="p">(</span><span class="mi">2007</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">27</span><span class="p">)},</span>
+        <span class="p">{</span><span class="s">&#39;id&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&#39;Wendy Jones&#39;</span><span class="p">,</span>
+                <span class="s">&#39;create_date&#39;</span><span class="p">:</span><span class="n">date</span><span class="p">(</span><span class="mi">2008</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">15</span><span class="p">)},</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.create_check_constraint">
+<tt class="descname">create_check_constraint</tt><big>(</big><em>name</em>, <em>source</em>, <em>condition</em>, <em>schema=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.create_check_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;create check constraint&#8221; instruction using the
+current migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="kn">import</span> <span class="n">column</span><span class="p">,</span> <span class="n">func</span>
+
+<span class="n">op</span><span class="o">.</span><span class="n">create_check_constraint</span><span class="p">(</span>
+    <span class="s">&quot;ck_user_name_len&quot;</span><span class="p">,</span>
+    <span class="s">&quot;user&quot;</span><span class="p">,</span>
+    <span class="n">func</span><span class="o">.</span><span class="n">len</span><span class="p">(</span><span class="n">column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>CHECK constraints are usually against a SQL expression, so ad-hoc
+table metadata is usually needed.   The function will convert the given
+arguments into a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.CheckConstraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">sqlalchemy.schema.CheckConstraint</span></tt></a> bound
+to an anonymous table in order to emit the CREATE statement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the check constraint.  The name is necessary
+so that an ALTER statement can be emitted.  For setups that
+use an automated naming scheme such as that described at
+<a class="reference external" href="http://www.sqlalchemy.org/trac/wiki/UsageRecipes/NamingConventions">NamingConventions</a>,
+<tt class="docutils literal"><span class="pre">name</span></tt> here can be <tt class="docutils literal"><span class="pre">None</span></tt>, as the event listener will
+apply the name to the constraint object when it is associated
+with the table.</li>
+<li><strong>source</strong> &#8211; String name of the source table.</li>
+<li><strong>condition</strong> &#8211; SQL expression that&#8217;s the condition of the constraint.
+Can be a string or SQLAlchemy expression language structure.</li>
+<li><strong>deferrable</strong> &#8211; optional bool. If set, emit DEFERRABLE or NOT DEFERRABLE when
+issuing DDL for this constraint.</li>
+<li><strong>initially</strong> &#8211; optional string. If set, emit INITIALLY &lt;value&gt; when issuing DDL
+for this constraint.</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p>..versionadded:: 0.4.0</p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.create_foreign_key">
+<tt class="descname">create_foreign_key</tt><big>(</big><em>name</em>, <em>source</em>, <em>referent</em>, <em>local_cols</em>, <em>remote_cols</em>, <em>onupdate=None</em>, <em>ondelete=None</em>, <em>source_schema=None</em>, <em>referent_schema=None</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.create_foreign_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;create foreign key&#8221; instruction using the
+current migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="n">op</span><span class="o">.</span><span class="n">create_foreign_key</span><span class="p">(</span>
+            <span class="s">&quot;fk_user_address&quot;</span><span class="p">,</span> <span class="s">&quot;address&quot;</span><span class="p">,</span>
+            <span class="s">&quot;user&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;user_id&quot;</span><span class="p">],</span> <span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This internally generates a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a> object
+containing the necessary columns, then generates a new
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.ForeignKeyConstraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">ForeignKeyConstraint</span></tt></a>
+object which it then associates with the <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a>.
+Any event listeners associated with this action will be fired
+off normally.   The <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.AddConstraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">AddConstraint</span></tt></a>
+construct is ultimately used to generate the ALTER statement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; <p>Name of the foreign key constraint.  The name is necessary
+so that an ALTER statement can be emitted.  For setups that
+use an automated naming scheme such as that described at
+<a class="reference external" href="http://www.sqlalchemy.org/trac/wiki/UsageRecipes/NamingConventions">NamingConventions</a>,
+<tt class="docutils literal"><span class="pre">name</span></tt> here can be <tt class="docutils literal"><span class="pre">None</span></tt>, as the event listener will
+apply the name to the constraint object when it is associated
+with the table.</p>
+</li>
+<li><strong>source</strong> &#8211; String name of the source table.</li>
+<li><strong>referent</strong> &#8211; String name of the destination table.</li>
+<li><strong>local_cols</strong> &#8211; a list of string column names in the
+source table.</li>
+<li><strong>remote_cols</strong> &#8211; a list of string column names in the
+remote table.</li>
+<li><strong>onupdate</strong> &#8211; Optional string. If set, emit ON UPDATE &lt;value&gt; when
+issuing DDL for this constraint. Typical values include CASCADE,
+DELETE and RESTRICT.</li>
+<li><strong>ondelete</strong> &#8211; Optional string. If set, emit ON DELETE &lt;value&gt; when
+issuing DDL for this constraint. Typical values include CASCADE,
+DELETE and RESTRICT.</li>
+<li><strong>source_schema</strong> &#8211; Optional schema name of the source table.</li>
+<li><strong>referent_schema</strong> &#8211; Optional schema name of the destination table.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.create_index">
+<tt class="descname">create_index</tt><big>(</big><em>name</em>, <em>table_name</em>, <em>columns</em>, <em>schema=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.create_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;create index&#8221; instruction using the current
+migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="n">op</span><span class="o">.</span><span class="n">create_index</span><span class="p">(</span><span class="s">&#39;ik_test&#39;</span><span class="p">,</span> <span class="s">&#39;t1&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="s">&#39;bar&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; name of the index.</li>
+<li><strong>table_name</strong> &#8211; <p>name of the owning table.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5.0: </span>The <tt class="docutils literal"><span class="pre">tablename</span></tt> parameter is now named <tt class="docutils literal"><span class="pre">table_name</span></tt>.
+As this is a positional argument, the old name is no
+longer present.</p>
+</li>
+<li><strong>columns</strong> &#8211; a list of string column names in the
+table.</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.create_primary_key">
+<tt class="descname">create_primary_key</tt><big>(</big><em>name</em>, <em>table_name</em>, <em>cols</em>, <em>schema=None</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.create_primary_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;create primary key&#8221; instruction using the current
+migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="n">op</span><span class="o">.</span><span class="n">create_primary_key</span><span class="p">(</span>
+            <span class="s">&quot;pk_my_table&quot;</span><span class="p">,</span> <span class="s">&quot;my_table&quot;</span><span class="p">,</span>
+            <span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">,</span> <span class="s">&quot;version&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>This internally generates a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a> object
+containing the necessary columns, then generates a new
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.PrimaryKeyConstraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">PrimaryKeyConstraint</span></tt></a>
+object which it then associates with the <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a>.
+Any event listeners associated with this action will be fired
+off normally.   The <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.AddConstraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">AddConstraint</span></tt></a>
+construct is ultimately used to generate the ALTER statement.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.5.0.</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; <p>Name of the primary key constraint.  The name is necessary
+so that an ALTER statement can be emitted.  For setups that
+use an automated naming scheme such as that described at
+<a class="reference external" href="http://www.sqlalchemy.org/trac/wiki/UsageRecipes/NamingConventions">NamingConventions</a>,
+<tt class="docutils literal"><span class="pre">name</span></tt> here can be <tt class="docutils literal"><span class="pre">None</span></tt>, as the event listener will
+apply the name to the constraint object when it is associated
+with the table.</p>
+</li>
+<li><strong>table_name</strong> &#8211; String name of the target table.</li>
+<li><strong>cols</strong> &#8211; a list of string column names to be applied to the
+primary key constraint.</li>
+<li><strong>schema</strong> &#8211; Optional schema name of the table.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.create_table">
+<tt class="descname">create_table</tt><big>(</big><em>name</em>, <em>*columns</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.create_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;create table&#8221; instruction using the current migration context.</p>
+<p>This directive receives an argument list similar to that of the
+traditional <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">sqlalchemy.schema.Table</span></tt></a> construct, but without the
+metadata:</p>
+<div class="highlight-python"><pre>from sqlalchemy import INTEGER, VARCHAR, NVARCHAR, Column
+from alembic import op
+
+op.create_table(
+    'account',
+    Column('id', INTEGER, primary_key=True),
+    Column('name', VARCHAR(50), nullable=False),
+    Column('description', NVARCHAR(200))
+    Column('timestamp', TIMESTAMP, server_default=func.now())
+)</pre>
+</div>
+<p>Note that <a class="reference internal" href="#alembic.operations.Operations.create_table" title="alembic.operations.Operations.create_table"><tt class="xref py py-meth docutils literal"><span class="pre">create_table()</span></tt></a> accepts <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Column" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a>
+constructs directly from the SQLAlchemy library.  In particular,
+default values to be created on the database side are
+specified using the <tt class="docutils literal"><span class="pre">server_default</span></tt> parameter, and not
+<tt class="docutils literal"><span class="pre">default</span></tt> which only specifies Python-side defaults:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">Column</span><span class="p">,</span> <span class="n">TIMESTAMP</span><span class="p">,</span> <span class="n">func</span>
+
+<span class="c"># specify &quot;DEFAULT NOW&quot; along with the &quot;timestamp&quot; column</span>
+<span class="n">op</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span><span class="s">&#39;account&#39;</span><span class="p">,</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">INTEGER</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+    <span class="n">Column</span><span class="p">(</span><span class="s">&#39;timestamp&#39;</span><span class="p">,</span> <span class="n">TIMESTAMP</span><span class="p">,</span> <span class="n">server_default</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the table</li>
+<li><strong>*columns</strong> &#8211; collection of <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Column" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Column</span></tt></a>
+objects within
+the table, as well as optional <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Constraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Constraint</span></tt></a>
+objects
+and <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Index" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Index</span></tt></a> objects.</li>
+<li><strong>schema</strong> &#8211; Optional schema name to operate within.</li>
+<li><strong>**kw</strong> &#8211; Other keyword arguments are passed to the underlying
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">sqlalchemy.schema.Table</span></tt></a> object created for the command.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.create_unique_constraint">
+<tt class="descname">create_unique_constraint</tt><big>(</big><em>name</em>, <em>source</em>, <em>local_cols</em>, <em>schema=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.create_unique_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;create unique constraint&#8221; instruction using the
+current migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="n">op</span><span class="o">.</span><span class="n">create_unique_constraint</span><span class="p">(</span><span class="s">&quot;uq_user_name&quot;</span><span class="p">,</span> <span class="s">&quot;user&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This internally generates a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a> object
+containing the necessary columns, then generates a new
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.UniqueConstraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">UniqueConstraint</span></tt></a>
+object which it then associates with the <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a>.
+Any event listeners associated with this action will be fired
+off normally.   The <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.AddConstraint" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">AddConstraint</span></tt></a>
+construct is ultimately used to generate the ALTER statement.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; <p>Name of the unique constraint.  The name is necessary
+so that an ALTER statement can be emitted.  For setups that
+use an automated naming scheme such as that described at
+<a class="reference external" href="http://www.sqlalchemy.org/trac/wiki/UsageRecipes/NamingConventions">NamingConventions</a>,
+<tt class="docutils literal"><span class="pre">name</span></tt> here can be <tt class="docutils literal"><span class="pre">None</span></tt>, as the event listener will
+apply the name to the constraint object when it is associated
+with the table.</p>
+</li>
+<li><strong>source</strong> &#8211; String name of the source table. Dotted schema names are
+supported.</li>
+<li><strong>local_cols</strong> &#8211; a list of string column names in the
+source table.</li>
+<li><strong>deferrable</strong> &#8211; optional bool. If set, emit DEFERRABLE or NOT DEFERRABLE when
+issuing DDL for this constraint.</li>
+<li><strong>initially</strong> &#8211; optional string. If set, emit INITIALLY &lt;value&gt; when issuing DDL
+for this constraint.</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.drop_column">
+<tt class="descname">drop_column</tt><big>(</big><em>table_name</em>, <em>column_name</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.drop_column" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;drop column&#8221; instruction using the current
+migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">drop_column</span><span class="p">(</span><span class="s">&#39;organization&#39;</span><span class="p">,</span> <span class="s">&#39;account_id&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>table_name</strong> &#8211; name of table</li>
+<li><strong>column_name</strong> &#8211; name of column</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+<li><strong>mssql_drop_check</strong> &#8211; Optional boolean.  When <tt class="docutils literal"><span class="pre">True</span></tt>, on
+Microsoft SQL Server only, first
+drop the CHECK constraint on the column using a
+SQL-script-compatible
+block that selects into a &#64;variable from sys.check_constraints,
+then exec&#8217;s a separate DROP CONSTRAINT for that constraint.</li>
+<li><strong>mssql_drop_default</strong> &#8211; Optional boolean.  When <tt class="docutils literal"><span class="pre">True</span></tt>, on
+Microsoft SQL Server only, first
+drop the DEFAULT constraint on the column using a
+SQL-script-compatible
+block that selects into a &#64;variable from sys.default_constraints,
+then exec&#8217;s a separate DROP CONSTRAINT for that default.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.drop_constraint">
+<tt class="descname">drop_constraint</tt><big>(</big><em>name</em>, <em>table_name</em>, <em>type_=None</em>, <em>schema=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.drop_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop a constraint of the given name, typically via DROP CONSTRAINT.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; name of the constraint.</li>
+<li><strong>table_name</strong> &#8211; <p>table name.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5.0: </span>The <tt class="docutils literal"><span class="pre">tablename</span></tt> parameter is now named <tt class="docutils literal"><span class="pre">table_name</span></tt>.
+As this is a positional argument, the old name is no
+longer present.</p>
+</li>
+<li><strong>type_</strong> &#8211; <p>optional, required on MySQL.  can be
+&#8216;foreignkey&#8217;, &#8216;primary&#8217;, &#8216;unique&#8217;, or &#8216;check&#8217;.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5.0: </span>The <tt class="docutils literal"><span class="pre">type</span></tt> parameter is now named <tt class="docutils literal"><span class="pre">type_</span></tt>.  The old name
+<tt class="docutils literal"><span class="pre">type</span></tt> will remain for backwards compatibility.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.3.6: </span>&#8216;primary&#8217; qualfier to enable
+dropping of MySQL primary key constraints.</p>
+</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.drop_index">
+<tt class="descname">drop_index</tt><big>(</big><em>name</em>, <em>table_name=None</em>, <em>schema=None</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.drop_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;drop index&#8221; instruction using the current
+migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">drop_index</span><span class="p">(</span><span class="s">&quot;accounts&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; name of the index.</li>
+<li><strong>table_name</strong> &#8211; <p>name of the owning table.  Some
+backends such as Microsoft SQL Server require this.</p>
+<p class="versionchanged">
+<span class="versionmodified">Changed in version 0.5.0: </span>The <tt class="docutils literal"><span class="pre">tablename</span></tt> parameter is now named <tt class="docutils literal"><span class="pre">table_name</span></tt>.
+The old name will continue to function for backwards
+compatibility.</p>
+</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.drop_table">
+<tt class="descname">drop_table</tt><big>(</big><em>name</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.drop_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Issue a &#8220;drop table&#8221; instruction using the current
+migration context.</p>
+<p>e.g.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">drop_table</span><span class="p">(</span><span class="s">&quot;accounts&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> &#8211; Name of the table</li>
+<li><strong>schema</strong> &#8211; <p>Optional schema name to operate within.</p>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.4.0.</span></p>
+</li>
+<li><strong>**kw</strong> &#8211; Other keyword arguments are passed to the underlying
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">sqlalchemy.schema.Table</span></tt></a> object created for the command.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.execute">
+<tt class="descname">execute</tt><big>(</big><em>sql</em>, <em>execution_options=None</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute the given SQL using the current migration context.</p>
+<p>In a SQL script context, the statement is emitted directly to the
+output stream.   There is <em>no</em> return result, however, as this
+function is oriented towards generating a change script
+that can run in &#8220;offline&#8221; mode.  For full interaction
+with a connected database, use the &#8220;bind&#8221; available
+from the context:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">get_bind</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Also note that any parameterized statement here <em>will not work</em>
+in offline mode - INSERT, UPDATE and DELETE statements which refer
+to literal values would need to render
+inline expressions.   For simple use cases, the
+<a class="reference internal" href="#alembic.operations.Operations.inline_literal" title="alembic.operations.Operations.inline_literal"><tt class="xref py py-meth docutils literal"><span class="pre">inline_literal()</span></tt></a> function can be used for <strong>rudimentary</strong>
+quoting of string values.  For &#8220;bulk&#8221; inserts, consider using
+<a class="reference internal" href="#alembic.operations.Operations.bulk_insert" title="alembic.operations.Operations.bulk_insert"><tt class="xref py py-meth docutils literal"><span class="pre">bulk_insert()</span></tt></a>.</p>
+<p>For example, to emit an UPDATE statement which is equally
+compatible with both online and offline mode:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlalchemy.sql</span> <span class="kn">import</span> <span class="n">table</span><span class="p">,</span> <span class="n">column</span>
+<span class="kn">from</span> <span class="nn">sqlalchemy</span> <span class="kn">import</span> <span class="n">String</span>
+<span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+
+<span class="n">account</span> <span class="o">=</span> <span class="n">table</span><span class="p">(</span><span class="s">&#39;account&#39;</span><span class="p">,</span>
+    <span class="n">column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">String</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">op</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+    <span class="n">account</span><span class="o">.</span><span class="n">update</span><span class="p">()</span><span class="o">.</span>\
+        <span class="n">where</span><span class="p">(</span><span class="n">account</span><span class="o">.</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="o">==</span><span class="n">op</span><span class="o">.</span><span class="n">inline_literal</span><span class="p">(</span><span class="s">&#39;account 1&#39;</span><span class="p">))</span><span class="o">.</span>\
+        <span class="n">values</span><span class="p">({</span><span class="s">&#39;name&#39;</span><span class="p">:</span><span class="n">op</span><span class="o">.</span><span class="n">inline_literal</span><span class="p">(</span><span class="s">&#39;account 2&#39;</span><span class="p">)})</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>Note above we also used the SQLAlchemy
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">sqlalchemy.sql.expression.table()</span></tt></a>
+and <a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.column" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">sqlalchemy.sql.expression.column()</span></tt></a> constructs to make a brief,
+ad-hoc table construct just for our UPDATE statement.  A full
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a> construct of course works perfectly
+fine as well, though note it&#8217;s a recommended practice to at least ensure
+the definition of a table is self-contained within the migration script,
+rather than imported from a module that may break compatibility with
+older migrations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sql</strong> &#8211; Any legal SQLAlchemy expression, including:</td>
+</tr>
+</tbody>
+</table>
+<ul class="simple">
+<li>a string</li>
+<li>a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.text" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">sqlalchemy.sql.expression.text()</span></tt></a> construct.</li>
+<li>a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.insert" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">sqlalchemy.sql.expression.insert()</span></tt></a> construct.</li>
+<li>a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.update" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">sqlalchemy.sql.expression.update()</span></tt></a>,
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.insert" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">sqlalchemy.sql.expression.insert()</span></tt></a>,
+or <a class="reference external" href="http://www.sqlalchemy.org/docs/core/expression_api.html#sqlalchemy.sql.expression.delete" title="(in SQLAlchemy v0.8)"><tt class="xref py py-func docutils literal"><span class="pre">sqlalchemy.sql.expression.delete()</span></tt></a>  construct.</li>
+<li>Pretty much anything that&#8217;s &#8220;executable&#8221; as described
+in <a class="reference external" href="http://www.sqlalchemy.org/docs/core/tutorial.html#sqlexpression-toplevel" title="(in SQLAlchemy v0.8)"><em>SQL Expression Language Tutorial</em></a>.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>execution_options</strong> &#8211; Optional dictionary of
+execution options, will be passed to
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/connections.html#sqlalchemy.engine.Connection.execution_options" title="(in SQLAlchemy v0.8)"><tt class="xref py py-meth docutils literal"><span class="pre">sqlalchemy.engine.Connection.execution_options()</span></tt></a>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.get_bind">
+<tt class="descname">get_bind</tt><big>(</big><big>)</big><a class="headerlink" href="#alembic.operations.Operations.get_bind" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current &#8216;bind&#8217;.</p>
+<p>Under normal circumstances, this is the
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/connections.html#sqlalchemy.engine.Connection" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Connection</span></tt></a> currently being used
+to emit SQL to the database.</p>
+<p>In a SQL script context, this value is <tt class="docutils literal"><span class="pre">None</span></tt>. [TODO: verify this]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.get_context">
+<tt class="descname">get_context</tt><big>(</big><big>)</big><a class="headerlink" href="#alembic.operations.Operations.get_context" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the <a class="reference internal" href="api.html#alembic.migration.MigrationContext" title="alembic.migration.MigrationContext"><tt class="xref py py-class docutils literal"><span class="pre">MigrationContext</span></tt></a> object that&#8217;s
+currently in use.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.inline_literal">
+<tt class="descname">inline_literal</tt><big>(</big><em>value</em>, <em>type_=None</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.inline_literal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce an &#8216;inline literal&#8217; expression, suitable for
+using in an INSERT, UPDATE, or DELETE statement.</p>
+<p>When using Alembic in &#8220;offline&#8221; mode, CRUD operations
+aren&#8217;t compatible with SQLAlchemy&#8217;s default behavior surrounding
+literal values,
+which is that they are converted into bound values and passed
+separately into the <tt class="docutils literal"><span class="pre">execute()</span></tt> method of the DBAPI cursor.
+An offline SQL
+script needs to have these rendered inline.  While it should
+always be noted that inline literal values are an <strong>enormous</strong>
+security hole in an application that handles untrusted input,
+a schema migration is not run in this context, so
+literals are safe to render inline, with the caveat that
+advanced types like dates may not be supported directly
+by SQLAlchemy.</p>
+<p>See <a class="reference internal" href="#alembic.operations.Operations.execute" title="alembic.operations.Operations.execute"><tt class="xref py py-meth docutils literal"><span class="pre">execute()</span></tt></a> for an example usage of
+<a class="reference internal" href="#alembic.operations.Operations.inline_literal" title="alembic.operations.Operations.inline_literal"><tt class="xref py py-meth docutils literal"><span class="pre">inline_literal()</span></tt></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>value</strong> &#8211; The value to render.  Strings, integers, and simple
+numerics should be supported.   Other types like boolean,
+dates, etc. may or may not be supported yet by various
+backends.</li>
+<li><strong>type_</strong> &#8211; optional - a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.TypeEngine" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">sqlalchemy.types.TypeEngine</span></tt></a>
+subclass stating the type of this value.  In SQLAlchemy
+expressions, this is usually derived automatically
+from the Python type of the value itself, as well as
+based on the context in which the value is used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="alembic.operations.Operations.rename_table">
+<tt class="descname">rename_table</tt><big>(</big><em>old_table_name</em>, <em>new_table_name</em>, <em>schema=None</em><big>)</big><a class="headerlink" href="#alembic.operations.Operations.rename_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Emit an ALTER TABLE to rename a table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>old_table_name</strong> &#8211; old name.</li>
+<li><strong>new_table_name</strong> &#8211; new name.</li>
+<li><strong>schema</strong> &#8211; Optional schema name to operate within.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="api.html"
+                        title="next chapter">API Details</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/ops.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="api.html" title="API Details"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">Alembic 0.5.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Mike Bayer.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

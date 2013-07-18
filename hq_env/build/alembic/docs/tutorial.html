@@ -1,0 +1,958 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Tutorial &mdash; Alembic 0.5.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.5.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Alembic 0.5.0 documentation" href="index.html" />
+    <link rel="next" title="Operation Reference" href="ops.html" />
+    <link rel="prev" title="Front Matter" href="front.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ops.html" title="Operation Reference"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="front.html" title="Front Matter"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Alembic 0.5.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="tutorial">
+<h1>Tutorial<a class="headerlink" href="#tutorial" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://bitbucket.org/zzzeek/alembic">Alembic</a> provides for the creation, management, and invocation of <em>change management</em>
+scripts for a relational database, using <a class="reference external" href="http://www.sqlalchemy.org">SQLAlchemy</a> as the underlying engine.
+This tutorial will provide a full introduction to the theory and usage of this tool.</p>
+<p>To begin, make sure Alembic is installed as described at <a class="reference internal" href="front.html#installation"><em>Installation</em></a>.</p>
+<div class="section" id="the-migration-environment">
+<h2>The Migration Environment<a class="headerlink" href="#the-migration-environment" title="Permalink to this headline">¶</a></h2>
+<p>Usage of Alembic starts with creation of the <em>Migration Environment</em>.  This is a directory of scripts
+that is specific to a particular application.   The migration environment is created just once,
+and is then maintained along with the application&#8217;s source code itself.   The environment is
+created using the <tt class="docutils literal"><span class="pre">init</span></tt> command of Alembic, and is then customizable to suit the specific
+needs of the application.</p>
+<p>The structure of this environment, including some generated migration scripts, looks like:</p>
+<div class="highlight-python"><pre>yourproject/
+    alembic/
+        env.py
+        README
+        script.py.mako
+        versions/
+            3512b954651e_add_account.py
+            2b1ae634e5cd_add_order_id.py
+            3adcc9a56557_rename_username_field.py</pre>
+</div>
+<p>The directory includes these directories/files:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">yourproject</span></tt> - this is the root of your application&#8217;s source code, or some directory within it.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">alembic</span></tt> - this directory lives within your application&#8217;s source tree and is the home of the
+migration environment.   It can be named anything, and a project that uses multiple databases
+may even have more than one.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">env.py</span></tt> - This is a Python script that is run whenever the alembic migration tool is invoked.
+At the very least, it contains instructions to configure and generate a SQLAlchemy engine,
+procure a connection from that engine along with a transaction, and to then invoke the migration
+engine, using the connection as a source of database connectivity.</p>
+<p>The <tt class="docutils literal"><span class="pre">env.py</span></tt> script is part of the generated environment so that the way migrations run
+is entirely customizable.   The exact specifics of how to connect are here, as well as
+the specifics of how the migration enviroment are invoked.  The script can be modified
+so that multiple engines can be operated upon, custom arguments can be passed into the
+migration environment, application-specific libraries and models can be loaded in and
+made available.</p>
+<p>Alembic includes a set of initialization templates which feature different varieties
+of <tt class="docutils literal"><span class="pre">env.py</span></tt> for different use cases.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">README</span></tt> - included with the various enviromnent templates, should have something
+informative.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">script.py.mako</span></tt> - This is a <a class="reference external" href="http://www.makotemplates.org">Mako</a> template file which
+is used to generate new migration scripts.   Whatever is here is used to generate new
+files within <tt class="docutils literal"><span class="pre">versions/</span></tt>.   This is scriptable so that the structure of each migration
+file can be controlled, including standard imports to be within each, as well as
+changes to the structure of the <tt class="docutils literal"><span class="pre">upgrade()</span></tt> and <tt class="docutils literal"><span class="pre">downgrade()</span></tt> functions.  For example,
+the <tt class="docutils literal"><span class="pre">multidb</span></tt> environment allows for multiple functions to be generated using a
+naming scheme <tt class="docutils literal"><span class="pre">upgrade_engine1()</span></tt>, <tt class="docutils literal"><span class="pre">upgrade_engine2()</span></tt>.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">versions/</span></tt> - This directory holds the individual version scripts.  Users of other migration
+tools may notice that the files here don&#8217;t use ascending integers, and instead use a
+partial GUID approach.   In Alembic, the ordering of version scripts is relative
+to directives within the scripts themselves, and it is theoretically possible to &#8220;splice&#8221; version files
+in between others, allowing migration sequences from different branches to be merged,
+albeit carefully by hand.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="creating-an-environment">
+<h2>Creating an Environment<a class="headerlink" href="#creating-an-environment" title="Permalink to this headline">¶</a></h2>
+<p>With a basic understanding of what the environment is, we can create one using <tt class="docutils literal"><span class="pre">alembic</span> <span class="pre">init</span></tt>.
+This will create an environment using the &#8220;generic&#8221; template:</p>
+<div class="highlight-python"><pre>$ cd yourproject
+$ alembic init alembic</pre>
+</div>
+<p>Where above, the <tt class="docutils literal"><span class="pre">init</span></tt> command was called to generate a migrations directory called <tt class="docutils literal"><span class="pre">alembic</span></tt>:</p>
+<div class="highlight-python"><pre>Creating directory /path/to/yourproject/alembic...done
+Creating directory /path/to/yourproject/alembic/versions...done
+Generating /path/to/yourproject/alembic.ini...done
+Generating /path/to/yourproject/alembic/env.py...done
+Generating /path/to/yourproject/alembic/README...done
+Generating /path/to/yourproject/alembic/script.py.mako...done
+Please edit configuration/connection/logging settings in
+'/path/to/yourproject/alembic.ini' before proceeding.</pre>
+</div>
+<p>Alembic also includes other environment templates.  These can be listed out using the <tt class="docutils literal"><span class="pre">list_templates</span></tt>
+command:</p>
+<div class="highlight-python"><pre>$ alembic list_templates
+Available templates:
+
+generic - Generic single-database configuration.
+multidb - Rudimentary multi-database configuration.
+pylons - Configuration that reads from a Pylons project environment.
+
+Templates are used via the 'init' command, e.g.:
+
+  alembic init --template pylons ./scripts</pre>
+</div>
+</div>
+<div class="section" id="editing-the-ini-file">
+<h2>Editing the .ini File<a class="headerlink" href="#editing-the-ini-file" title="Permalink to this headline">¶</a></h2>
+<p>Alembic placed a file <tt class="docutils literal"><span class="pre">alembic.ini</span></tt> into the current directory.  This is a file that the <tt class="docutils literal"><span class="pre">alembic</span></tt>
+script looks for when invoked.  This file can be anywhere, either in the same directory
+from which the <tt class="docutils literal"><span class="pre">alembic</span></tt> script will normally be invoked, or if in a different directory, can
+be specified by using the <tt class="docutils literal"><span class="pre">--config</span></tt> option to the <tt class="docutils literal"><span class="pre">alembic</span></tt> runner.</p>
+<p>The file generated with the &#8220;generic&#8221; configuration looks like:</p>
+<div class="highlight-python"><pre># A generic, single database configuration.
+
+[alembic]
+# path to migration scripts
+script_location = alembic
+
+# template used to generate migration files
+# file_template = %%(rev)s_%%(slug)s
+
+# set to 'true' to run the environment during
+# the 'revision' command, regardless of autogenerate
+# revision_environment = false
+
+sqlalchemy.url = driver://user:pass@localhost/dbname
+
+# Logging configuration
+[loggers]
+keys = root,sqlalchemy,alembic
+
+[handlers]
+keys = console
+
+[formatters]
+keys = generic
+
+[logger_root]
+level = WARN
+handlers = console
+qualname =
+
+[logger_sqlalchemy]
+level = WARN
+handlers =
+qualname = sqlalchemy.engine
+
+[logger_alembic]
+level = INFO
+handlers =
+qualname = alembic
+
+[handler_console]
+class = StreamHandler
+args = (sys.stderr,)
+level = NOTSET
+formatter = generic
+
+[formatter_generic]
+format = %(levelname)-5.5s [%(name)s] %(message)s
+datefmt = %H:%M:%S</pre>
+</div>
+<p>The file is read using Python&#8217;s <tt class="xref py py-class docutils literal"><span class="pre">ConfigParser.SafeConfigParser</span></tt> object.  The
+<tt class="docutils literal"><span class="pre">%(here)s</span></tt> variable is provided as a substitution variable, which
+can be used to produce absolute pathnames to directories and files, as we do above
+with the path to the Alembic script location.</p>
+<p>This file contains the following features:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">[alembic]</span></tt> - this is the section read by Alembic to determine configuration.  Alembic
+itself does not directly read any other areas of the file.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">script_location</span></tt> - this is the location of the Alembic environment.   It is normally
+specified as a filesystem location, either relative or absolute.  If the location is
+a relative path, it&#8217;s interpreted as relative to the current directory.</p>
+<p>This is the only key required by Alembic in all cases.   The generation
+of the .ini file by the command <tt class="docutils literal"><span class="pre">alembic</span> <span class="pre">init</span> <span class="pre">alembic</span></tt> automatically placed the
+directory name <tt class="docutils literal"><span class="pre">alembic</span></tt> here.   The special variable <tt class="docutils literal"><span class="pre">%(here)s</span></tt> can also be used,
+as in <tt class="docutils literal"><span class="pre">%(here)s/alembic</span></tt>.</p>
+<p>For support of applications that package themselves into .egg files, the value can
+also be specified
+as a <a class="reference external" href="http://packages.python.org/distribute/pkg_resources.html">package resource</a>, in which
+case <tt class="docutils literal"><span class="pre">resource_filename()</span></tt> is used to find the file (new in 0.2.2).  Any non-absolute
+URI which contains colons is interpreted here as a resource name, rather than
+a straight filename.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">file_template</span></tt> - this is the naming scheme used to generate new migration files.
+The value present is the default, so is commented out.   Tokens available include:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">%%(rev)s</span></tt> - revision id</li>
+<li><tt class="docutils literal"><span class="pre">%%(slug)s</span></tt> - a truncated string derived from the revision message</li>
+<li><tt class="docutils literal"><span class="pre">%%(year)d</span></tt>, <tt class="docutils literal"><span class="pre">%%(month).2d</span></tt>, <tt class="docutils literal"><span class="pre">%%(day).2d</span></tt>, <tt class="docutils literal"><span class="pre">%%(hour).2d</span></tt>,
+<tt class="docutils literal"><span class="pre">%%(minute).2d</span></tt>, <tt class="docutils literal"><span class="pre">%%(second).2d</span></tt> - components of the create date
+as returned by <tt class="docutils literal"><span class="pre">datetime.datetime.now()</span></tt></li>
+</ul>
+<p class="versionadded">
+<span class="versionmodified">New in version 0.3.6: </span>- added date parameters to <tt class="docutils literal"><span class="pre">file_template</span></tt>.</p>
+</div></blockquote>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">sqlalchemy.url</span></tt> - A URL to connect to the database via SQLAlchemy.  This key is in fact
+only referenced within the <tt class="docutils literal"><span class="pre">env.py</span></tt> file that is specific to the &#8220;generic&#8221; configuration;
+a file that can be customized by the developer. A multiple
+database configuration may respond to multiple keys here, or may reference other sections
+of the file.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">revision_environment</span></tt> - this is a flag which when set to the value &#8216;true&#8217;, will indicate
+that the migration environment script <tt class="docutils literal"><span class="pre">env.py</span></tt> should be run unconditionally when
+generating new revision files (new in 0.3.3).</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">[loggers]</span></tt>, <tt class="docutils literal"><span class="pre">[handlers]</span></tt>, <tt class="docutils literal"><span class="pre">[formatters]</span></tt>, <tt class="docutils literal"><span class="pre">[logger_*]</span></tt>, <tt class="docutils literal"><span class="pre">[handler_*]</span></tt>,
+<tt class="docutils literal"><span class="pre">[formatter_*]</span></tt> - these sections are all part of Python&#8217;s standard logging configuration,
+the mechanics of which are documented at <a class="reference external" href="http://docs.python.org/library/logging.config.html#configuration-file-format">Configuration File Format</a>.
+As is the case with the database connection, these directives are used directly as the
+result of the <tt class="docutils literal"><span class="pre">logging.config.fileConfig()</span></tt> call present in the
+<tt class="docutils literal"><span class="pre">env.py</span></tt> script, which you&#8217;re free to modify.</p>
+</li>
+</ul>
+<p>For starting up with just a single database and the generic configuration, setting up
+the SQLAlchemy URL is all that&#8217;s needed:</p>
+<div class="highlight-python"><pre>sqlalchemy.url = postgresql://scott:tiger@localhost/test</pre>
+</div>
+</div>
+<div class="section" id="create-a-migration-script">
+<h2>Create a Migration Script<a class="headerlink" href="#create-a-migration-script" title="Permalink to this headline">¶</a></h2>
+<p>With the environment in place we can create a new revision, using <tt class="docutils literal"><span class="pre">alembic</span> <span class="pre">revision</span></tt>:</p>
+<div class="highlight-python"><pre>$ alembic revision -m "create account table"
+Generating /path/to/yourproject/alembic/versions/1975ea83b712_create_accoun
+t_table.py...done</pre>
+</div>
+<p>A new file <tt class="docutils literal"><span class="pre">1975ea83b712_create_account_table.py</span></tt> is generated.  Looking inside the file:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&quot;&quot;&quot;create account table</span>
+
+<span class="sd">Revision ID: 1975ea83b712</span>
+<span class="sd">Revises: None</span>
+<span class="sd">Create Date: 2011-11-08 11:40:27.089406</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># revision identifiers, used by Alembic.</span>
+<span class="n">revision</span> <span class="o">=</span> <span class="s">&#39;1975ea83b712&#39;</span>
+<span class="n">down_revision</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="kn">as</span> <span class="nn">sa</span>
+
+<span class="k">def</span> <span class="nf">upgrade</span><span class="p">():</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span> <span class="nf">downgrade</span><span class="p">():</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+<p>The file contains some header information, identifiers for the current revision
+and a &#8220;downgrade&#8221; revision, an import of basic Alembic directives,
+and empty <tt class="docutils literal"><span class="pre">upgrade()</span></tt> and <tt class="docutils literal"><span class="pre">downgrade()</span></tt> functions.  Our
+job here is to populate the <tt class="docutils literal"><span class="pre">upgrade()</span></tt> and <tt class="docutils literal"><span class="pre">downgrade()</span></tt> functions with directives that
+will apply a set of changes to our database.    Typically, <tt class="docutils literal"><span class="pre">upgrade()</span></tt> is required
+while <tt class="docutils literal"><span class="pre">downgrade()</span></tt> is only needed if down-revision capability is desired, though it&#8217;s
+probably a good idea.</p>
+<p>Another thing to notice is the <tt class="docutils literal"><span class="pre">down_revision</span></tt> variable.  This is how Alembic
+knows the correct order in which to apply migrations.   When we create the next revision,
+the new file&#8217;s <tt class="docutils literal"><span class="pre">down_revision</span></tt> identifier would point to this one:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># revision identifiers, used by Alembic.</span>
+<span class="n">revision</span> <span class="o">=</span> <span class="s">&#39;ae1027a6acf&#39;</span>
+<span class="n">down_revision</span> <span class="o">=</span> <span class="s">&#39;1975ea83b712&#39;</span>
+</pre></div>
+</div>
+<p>Every time Alembic runs an operation against the <tt class="docutils literal"><span class="pre">versions/</span></tt> directory, it reads all
+the files in, and composes a list based on how the <tt class="docutils literal"><span class="pre">down_revision</span></tt> identifiers link together,
+with the <tt class="docutils literal"><span class="pre">down_revision</span></tt> of <tt class="docutils literal"><span class="pre">None</span></tt> representing the first file.   In theory, if a
+migration environment had thousands of migrations, this could begin to add some latency to
+startup, but in practice a project should probably prune old migrations anyway
+(see the section <a class="reference internal" href="#building-uptodate"><em>Building an Up to Date Database from Scratch</em></a> for a description on how to do this, while maintaining
+the ability to build the current database fully).</p>
+<p>We can then add some directives to our script, suppose adding a new table <tt class="docutils literal"><span class="pre">account</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">upgrade</span><span class="p">():</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+        <span class="s">&#39;account&#39;</span><span class="p">,</span>
+        <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="bp">True</span><span class="p">),</span>
+        <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="mi">50</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span>
+        <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Unicode</span><span class="p">(</span><span class="mi">200</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">downgrade</span><span class="p">():</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s">&#39;account&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="ops.html#alembic.operations.Operations.create_table" title="alembic.operations.Operations.create_table"><tt class="xref py py-meth docutils literal"><span class="pre">create_table()</span></tt></a> and <a class="reference internal" href="ops.html#alembic.operations.Operations.drop_table" title="alembic.operations.Operations.drop_table"><tt class="xref py py-meth docutils literal"><span class="pre">drop_table()</span></tt></a> are Alembic directives.   Alembic provides
+all the basic database migration operations via these directives, which are designed to be as simple and
+minimalistic as possible;
+there&#8217;s no reliance upon existing table metadata for most of these directives.  They draw upon
+a global &#8220;context&#8221; that indicates how to get at a database connection (if any; migrations can
+dump SQL/DDL directives to files as well) in order to invoke the command.   This global
+context is set up, like everything else, in the <tt class="docutils literal"><span class="pre">env.py</span></tt> script.</p>
+<p>An overview of all Alembic directives is at <a class="reference internal" href="ops.html#ops"><em>Operation Reference</em></a>.</p>
+</div>
+<div class="section" id="running-our-first-migration">
+<h2>Running our First Migration<a class="headerlink" href="#running-our-first-migration" title="Permalink to this headline">¶</a></h2>
+<p>We now want to run our migration.   Assuming our database is totally clean, it&#8217;s as
+yet unversioned.   The <tt class="docutils literal"><span class="pre">alembic</span> <span class="pre">upgrade</span></tt> command will run upgrade operations, proceeding
+from the current database revision, in this example <tt class="docutils literal"><span class="pre">None</span></tt>, to the given target revision.
+We can specify <tt class="docutils literal"><span class="pre">1975ea83b712</span></tt> as the revision we&#8217;d like to upgrade to, but it&#8217;s easier
+in most cases just to tell it &#8220;the most recent&#8221;, in this case <tt class="docutils literal"><span class="pre">head</span></tt>:</p>
+<div class="highlight-python"><pre>$ alembic upgrade head
+INFO  [alembic.context] Context class PostgresqlContext.
+INFO  [alembic.context] Will assume transactional DDL.
+INFO  [alembic.context] Running upgrade None -&gt; 1975ea83b712</pre>
+</div>
+<p>Wow that rocked !   Note that the information we see on the screen is the result of the
+logging configuration set up in <tt class="docutils literal"><span class="pre">alembic.ini</span></tt> - logging the <tt class="docutils literal"><span class="pre">alembic</span></tt> stream to the
+console (standard error, specifically).</p>
+<p>The process which occurred here included that Alembic first checked if the database had
+a table called <tt class="docutils literal"><span class="pre">alembic_version</span></tt>, and if not, created it.   It looks in this table
+for the current version, if any, and then calculates the path from this version to
+the version requested, in this case <tt class="docutils literal"><span class="pre">head</span></tt>, which is known to be <tt class="docutils literal"><span class="pre">1975ea83b712</span></tt>.
+It then invokes the <tt class="docutils literal"><span class="pre">upgrade()</span></tt> method in each file to get to the target revision.</p>
+</div>
+<div class="section" id="running-our-second-migration">
+<h2>Running our Second Migration<a class="headerlink" href="#running-our-second-migration" title="Permalink to this headline">¶</a></h2>
+<p>Let&#8217;s do another one so we have some things to play with.    We again create a revision
+file:</p>
+<div class="highlight-python"><pre>$ alembic revision -m "Add a column"
+Generating /path/to/yourapp/alembic/versions/ae1027a6acf.py_add_a_column.py...
+done</pre>
+</div>
+<p>Let&#8217;s edit this file and add a new column to the <tt class="docutils literal"><span class="pre">account</span></tt> table:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&quot;&quot;&quot;Add a column</span>
+
+<span class="sd">Revision ID: ae1027a6acf</span>
+<span class="sd">Revises: 1975ea83b712</span>
+<span class="sd">Create Date: 2011-11-08 12:37:36.714947</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># revision identifiers, used by Alembic.</span>
+<span class="n">revision</span> <span class="o">=</span> <span class="s">&#39;ae1027a6acf&#39;</span>
+<span class="n">down_revision</span> <span class="o">=</span> <span class="s">&#39;1975ea83b712&#39;</span>
+
+<span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="kn">as</span> <span class="nn">sa</span>
+
+<span class="k">def</span> <span class="nf">upgrade</span><span class="p">():</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="s">&#39;account&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;last_transaction_date&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">downgrade</span><span class="p">():</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_column</span><span class="p">(</span><span class="s">&#39;account&#39;</span><span class="p">,</span> <span class="s">&#39;last_transaction_date&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Running again to <tt class="docutils literal"><span class="pre">head</span></tt>:</p>
+<div class="highlight-python"><pre>$ alembic upgrade head
+INFO  [alembic.context] Context class PostgresqlContext.
+INFO  [alembic.context] Will assume transactional DDL.
+INFO  [alembic.context] Running upgrade 1975ea83b712 -&gt; ae1027a6acf</pre>
+</div>
+<p>We&#8217;ve now added the <tt class="docutils literal"><span class="pre">last_transaction_date</span></tt> column to the database.</p>
+</div>
+<div class="section" id="relative-migration-identifiers">
+<h2>Relative Migration Identifiers<a class="headerlink" href="#relative-migration-identifiers" title="Permalink to this headline">¶</a></h2>
+<p>As of 0.3.3, relative upgrades/downgrades are also supported.  To move two versions from the current, a decimal value &#8220;+N&#8221; can be supplied:</p>
+<div class="highlight-python"><pre>$ alembic upgrade +2</pre>
+</div>
+<p>Negative values are accepted for downgrades:</p>
+<div class="highlight-python"><pre>$ alembic downgrade -1</pre>
+</div>
+</div>
+<div class="section" id="getting-information">
+<h2>Getting Information<a class="headerlink" href="#getting-information" title="Permalink to this headline">¶</a></h2>
+<p>With a few revisions present we can get some information about the state of things.</p>
+<p>First we can view the current revision:</p>
+<div class="highlight-python"><pre>$ alembic current
+INFO  [alembic.context] Context class PostgresqlContext.
+INFO  [alembic.context] Will assume transactional DDL.
+Current revision for postgresql://scott:XXXXX@localhost/test: 1975ea83b712 -&gt; ae1027a6acf (head), Add a column</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">head</span></tt> is displayed only if the revision identifier for this database matches the head revision.</p>
+<p>We can also view history:</p>
+<div class="highlight-python"><pre>$ alembic history
+
+1975ea83b712 -&gt; ae1027a6acf (head), Add a column
+None -&gt; 1975ea83b712, empty message</pre>
+</div>
+<p>We can also identify specific migrations using just enough characters to uniquely identify them.
+If we wanted to upgrade directly to <tt class="docutils literal"><span class="pre">ae1027a6acf</span></tt> we could say:</p>
+<div class="highlight-python"><pre>$ alembic upgrade ae1</pre>
+</div>
+<p>Alembic will stop and let you know if more than one version starts with that prefix.</p>
+</div>
+<div class="section" id="downgrading">
+<h2>Downgrading<a class="headerlink" href="#downgrading" title="Permalink to this headline">¶</a></h2>
+<p>We can illustrate a downgrade back to nothing, by calling <tt class="docutils literal"><span class="pre">alembic</span> <span class="pre">downgrade</span></tt> back
+to the beginning, which in Alembic is called <tt class="docutils literal"><span class="pre">base</span></tt>:</p>
+<div class="highlight-python"><pre>$ alembic downgrade base
+INFO  [alembic.context] Context class PostgresqlContext.
+INFO  [alembic.context] Will assume transactional DDL.
+INFO  [alembic.context] Running downgrade ae1027a6acf -&gt; 1975ea83b712
+INFO  [alembic.context] Running downgrade 1975ea83b712 -&gt; None</pre>
+</div>
+<p>Back to nothing - and up again:</p>
+<div class="highlight-python"><pre>$ alembic upgrade head
+INFO  [alembic.context] Context class PostgresqlContext.
+INFO  [alembic.context] Will assume transactional DDL.
+INFO  [alembic.context] Running upgrade None -&gt; 1975ea83b712
+INFO  [alembic.context] Running upgrade 1975ea83b712 -&gt; ae1027a6acf</pre>
+</div>
+</div>
+<div class="section" id="auto-generating-migrations">
+<h2>Auto Generating Migrations<a class="headerlink" href="#auto-generating-migrations" title="Permalink to this headline">¶</a></h2>
+<p>Alembic can view the status of the database and compare against the table metadata
+in the application, generating the &#8220;obvious&#8221; migrations based on a comparison.  This
+is achieved using the <tt class="docutils literal"><span class="pre">--autogenerate</span></tt> option to the <tt class="docutils literal"><span class="pre">alembic</span> <span class="pre">revision</span></tt> command,
+which places so-called <em>candidate</em> migrations into our new migrations file.  We
+review and modify these by hand as needed, then proceed normally.</p>
+<p>To use autogenerate, we first need to modify our <tt class="docutils literal"><span class="pre">env.py</span></tt> so that it gets access
+to a table metadata object that contains the target.  Suppose our application
+has a <a class="reference external" href="http://www.sqlalchemy.org/docs/orm/extensions/declarative.html#synopsis">declarative base</a>
+in <tt class="docutils literal"><span class="pre">myapp.mymodel</span></tt>.  This base contains a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.MetaData" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">MetaData</span></tt></a> object which
+contains <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.Table" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Table</span></tt></a> objects defining our database.  We make sure this
+is loaded in <tt class="docutils literal"><span class="pre">env.py</span></tt> and then passed to <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.configure" title="alembic.environment.EnvironmentContext.configure"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.configure()</span></tt></a> via the
+<tt class="docutils literal"><span class="pre">target_metadata</span></tt> argument.   The <tt class="docutils literal"><span class="pre">env.py</span></tt> sample script already has a
+variable declaration near the top for our convenience, where we replace <tt class="docutils literal"><span class="pre">None</span></tt>
+with our <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.MetaData" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">MetaData</span></tt></a>.  Starting with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># add your model&#39;s MetaData object here</span>
+<span class="c"># for &#39;autogenerate&#39; support</span>
+<span class="c"># from myapp import mymodel</span>
+<span class="c"># target_metadata = mymodel.Base.metadata</span>
+<span class="n">target_metadata</span> <span class="o">=</span> <span class="bp">None</span>
+</pre></div>
+</div>
+<p>we change to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">myapp.mymodel</span> <span class="kn">import</span> <span class="n">Base</span>
+<span class="n">target_metadata</span> <span class="o">=</span> <span class="n">Base</span><span class="o">.</span><span class="n">metadata</span>
+</pre></div>
+</div>
+<p>If we look later in the script, down in <tt class="docutils literal"><span class="pre">run_migrations_online()</span></tt>,
+we can see the directive passed to <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.configure" title="alembic.environment.EnvironmentContext.configure"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.configure()</span></tt></a>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">run_migrations_online</span><span class="p">():</span>
+    <span class="n">engine</span> <span class="o">=</span> <span class="n">engine_from_config</span><span class="p">(</span>
+                <span class="n">config</span><span class="o">.</span><span class="n">get_section</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_ini_section</span><span class="p">),</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&#39;sqlalchemy.&#39;</span><span class="p">)</span>
+
+    <span class="n">connection</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+                <span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">,</span>
+                <span class="n">target_metadata</span><span class="o">=</span><span class="n">target_metadata</span>
+                <span class="p">)</span>
+
+    <span class="n">trans</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">run_migrations</span><span class="p">()</span>
+        <span class="n">trans</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">trans</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+        <span class="k">raise</span>
+</pre></div>
+</div>
+<p>We can then use the <tt class="docutils literal"><span class="pre">alembic</span> <span class="pre">revision</span></tt> command in conjunction with the
+<tt class="docutils literal"><span class="pre">--autogenerate</span></tt> option.  Suppose
+our <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.MetaData" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">MetaData</span></tt></a> contained a definition for the <tt class="docutils literal"><span class="pre">account</span></tt> table,
+and the database did not.  We&#8217;d get output like:</p>
+<div class="highlight-python"><pre>$ alembic revision --autogenerate -m "Added account table"
+INFO [alembic.context] Detected added table 'account'
+Generating /Users/classic/Desktop/tmp/alembic/versions/27c6a30d7c24.py...done</pre>
+</div>
+<p>We can then view our file <tt class="docutils literal"><span class="pre">27c6a30d7c24.py</span></tt> and see that a rudimentary migration
+is already present:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&quot;&quot;&quot;empty message</span>
+
+<span class="sd">Revision ID: 27c6a30d7c24</span>
+<span class="sd">Revises: None</span>
+<span class="sd">Create Date: 2011-11-08 11:40:27.089406</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># revision identifiers, used by Alembic.</span>
+<span class="n">revision</span> <span class="o">=</span> <span class="s">&#39;27c6a30d7c24&#39;</span>
+<span class="n">down_revision</span> <span class="o">=</span> <span class="bp">None</span>
+
+<span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">op</span>
+<span class="kn">import</span> <span class="nn">sqlalchemy</span> <span class="kn">as</span> <span class="nn">sa</span>
+
+<span class="k">def</span> <span class="nf">upgrade</span><span class="p">():</span>
+    <span class="c">### commands auto generated by Alembic - please adjust! ###</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">create_table</span><span class="p">(</span>
+    <span class="s">&#39;account&#39;</span><span class="p">,</span>
+    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">()),</span>
+    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span> <span class="n">nullable</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span>
+    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;description&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">VARCHAR</span><span class="p">(</span><span class="mi">200</span><span class="p">)),</span>
+    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s">&#39;last_transaction_date&#39;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">DateTime</span><span class="p">()),</span>
+    <span class="n">sa</span><span class="o">.</span><span class="n">PrimaryKeyConstraint</span><span class="p">(</span><span class="s">&#39;id&#39;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c">### end Alembic commands ###</span>
+
+<span class="k">def</span> <span class="nf">downgrade</span><span class="p">():</span>
+    <span class="c">### commands auto generated by Alembic - please adjust! ###</span>
+    <span class="n">op</span><span class="o">.</span><span class="n">drop_table</span><span class="p">(</span><span class="s">&quot;account&quot;</span><span class="p">)</span>
+    <span class="c">### end Alembic commands ###</span>
+</pre></div>
+</div>
+<p>The migration hasn&#8217;t actually run yet, of course.  We do that via the usual <tt class="docutils literal"><span class="pre">upgrade</span></tt>
+command.   We should also go into our migration file and alter it as needed, including
+adjustments to the directives as well as the addition of other directives which these may
+be dependent on - specifically data changes in between creates/alters/drops.</p>
+<p>Autogenerate will by default detect:</p>
+<ul class="simple">
+<li>Table additions, removals.</li>
+<li>Column additions, removals.</li>
+<li>Change of nullable status on columns.</li>
+</ul>
+<p>Autogenerate can <em>optionally</em> detect:</p>
+<ul class="simple">
+<li>Change of column type.  This will occur if you set <tt class="docutils literal"><span class="pre">compare_type=True</span></tt>
+on <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.configure" title="alembic.environment.EnvironmentContext.configure"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.configure()</span></tt></a>.  The feature works well in most cases,
+but is off by default so that it can be tested on the target schema
+first.  It can also be customized by passing a callable here; see the
+function&#8217;s documentation for details.</li>
+<li>Change of server default.  This will occur if you set
+<tt class="docutils literal"><span class="pre">compare_server_default=True</span></tt> on <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.configure" title="alembic.environment.EnvironmentContext.configure"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.configure()</span></tt></a>.
+This feature works well for simple cases but cannot always produce
+accurate results.  The Postgresql backend will actually invoke
+the &#8220;detected&#8221; and &#8220;metadata&#8221; values against the database to
+determine equivalence.  The feature is off by default so that
+it can be tested on the target schema first.  Like type comparison,
+it can also be customized by passing a callable; see the
+function&#8217;s documentation for details.</li>
+</ul>
+<p>Autogenerate can <em>not</em> detect:</p>
+<ul class="simple">
+<li>Changes of table name.   These will come out as an add/drop of two different
+tables, and should be hand-edited into a name change instead.</li>
+<li>Changes of column name.  Like table name changes, these are detected as
+a column add/drop pair, which is not at all the same as a name change.</li>
+<li>Special SQLAlchemy types such as <a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Enum" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Enum</span></tt></a> when generated
+on a backend which doesn&#8217;t support ENUM directly - this because the
+representation of such a type
+in the non-supporting database, i.e. a CHAR+ CHECK constraint, could be
+any kind of CHAR+CHECK.  For SQLAlchemy to determine that this is actually
+an ENUM would only be a guess, something that&#8217;s generally a bad idea.
+To implement your own &#8220;guessing&#8221; function here, use the
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/events.html#sqlalchemy.events.DDLEvents.column_reflect" title="(in SQLAlchemy v0.8)"><tt class="xref py py-meth docutils literal"><span class="pre">sqlalchemy.events.DDLEvents.column_reflect()</span></tt></a> event
+to alter the SQLAlchemy type passed for certain columns and possibly
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/events.html#sqlalchemy.events.DDLEvents.after_parent_attach" title="(in SQLAlchemy v0.8)"><tt class="xref py py-meth docutils literal"><span class="pre">sqlalchemy.events.DDLEvents.after_parent_attach()</span></tt></a> to intercept
+unwanted CHECK constraints.</li>
+</ul>
+<p>Autogenerate can&#8217;t currently, but will <em>eventually</em> detect:</p>
+<ul class="simple">
+<li>Free-standing constraint additions, removals,
+like CHECK, UNIQUE, FOREIGN KEY - these aren&#8217;t yet implemented.
+Right now you&#8217;ll get constraints within new tables, PK and FK
+constraints for the &#8220;downgrade&#8221; to a previously existing table,
+and the CHECK constraints generated with a SQLAlchemy &#8220;schema&#8221; types
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Boolean" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Boolean</span></tt></a>, <a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.Enum" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">Enum</span></tt></a>.</li>
+<li>Index additions, removals - not yet implemented.</li>
+<li>Sequence additions, removals - not yet implemented.</li>
+</ul>
+<div class="section" id="rendering-custom-types-in-autogenerate">
+<h3>Rendering Custom Types in Autogenerate<a class="headerlink" href="#rendering-custom-types-in-autogenerate" title="Permalink to this headline">¶</a></h3>
+<p>Note that the methodology Alembic uses to generate SQLAlchemy type constructs
+as Python code is plain old <tt class="docutils literal"><span class="pre">__repr__()</span></tt>.   SQLAlchemy&#8217;s built-in types
+for the most part have a <tt class="docutils literal"><span class="pre">__repr__()</span></tt> that faithfully renders a
+Python-compatible constructor call, but there are some exceptions, particularly
+in those cases when a constructor accepts arguments that aren&#8217;t compatible
+with <tt class="docutils literal"><span class="pre">__repr__()</span></tt>, such as a pickling function.</p>
+<p>When building a custom type that will be rendered into a migration script,
+it is often necessary to explicitly give the type a <tt class="docutils literal"><span class="pre">__repr__()</span></tt> that will
+faithfully reproduce the constructor for that type:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlalchemy.types</span> <span class="kn">import</span> <span class="n">UserDefinedType</span>
+
+<span class="k">class</span> <span class="nc">MySpecialType</span><span class="p">(</span><span class="n">UserDefinedType</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span> <span class="o">=</span> <span class="mi">8</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">precision</span> <span class="o">=</span> <span class="n">precision</span>
+
+    <span class="k">def</span> <span class="nf">get_col_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;MYTYPE(</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;MySpecialType(</span><span class="si">%d</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">precision</span>
+</pre></div>
+</div>
+<p>The above custom type includes a <tt class="docutils literal"><span class="pre">__repr__()</span></tt> that will render <tt class="docutils literal"><span class="pre">MySpecialType</span></tt>
+with the appropriate construction.   Sometimes <tt class="docutils literal"><span class="pre">__repr__()</span></tt> is needed
+with semi-custom types such as those which derive from
+<a class="reference external" href="http://www.sqlalchemy.org/docs/core/types.html#sqlalchemy.types.TypeDecorator" title="(in SQLAlchemy v0.8)"><tt class="xref py py-class docutils literal"><span class="pre">TypeDecorator</span></tt></a> as well.</p>
+</div>
+</div>
+<div class="section" id="generating-sql-scripts-a-k-a-offline-mode">
+<h2>Generating SQL Scripts (a.k.a. &#8220;Offline Mode&#8221;)<a class="headerlink" href="#generating-sql-scripts-a-k-a-offline-mode" title="Permalink to this headline">¶</a></h2>
+<p>A major capability of Alembic is to generate migrations as SQL scripts, instead of running
+them against the database - this is also referred to as <em>offline mode</em>.
+This is a critical feature when working in large organizations
+where access to DDL is restricted, and SQL scripts must be handed off to DBAs.   Alembic makes
+this easy via the <tt class="docutils literal"><span class="pre">--sql</span></tt> option passed to any <tt class="docutils literal"><span class="pre">upgrade</span></tt> or <tt class="docutils literal"><span class="pre">downgrade</span></tt> command.   We
+can, for example, generate a script that revises up to rev <tt class="docutils literal"><span class="pre">ae1027a6acf</span></tt>:</p>
+<div class="highlight-python"><pre>$ alembic upgrade ae1027a6acf --sql
+INFO  [alembic.context] Context class PostgresqlContext.
+INFO  [alembic.context] Will assume transactional DDL.
+BEGIN;
+
+CREATE TABLE alembic_version (
+    version_num VARCHAR(32) NOT NULL
+);
+
+INFO  [alembic.context] Running upgrade None -&gt; 1975ea83b712
+CREATE TABLE account (
+    id SERIAL NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(200),
+    PRIMARY KEY (id)
+);
+
+INFO  [alembic.context] Running upgrade 1975ea83b712 -&gt; ae1027a6acf
+ALTER TABLE account ADD COLUMN last_transaction_date TIMESTAMP WITHOUT TIME ZONE;
+
+INSERT INTO alembic_version (version_num) VALUES ('ae1027a6acf');
+
+COMMIT;</pre>
+</div>
+<p>While the logging configuration dumped to standard error, the actual script was dumped to standard output -
+so in the absence of further configuration (described later in this section), we&#8217;d at first be using output
+redirection to generate a script:</p>
+<div class="highlight-python"><pre>$ alembic upgrade ae1027a6acf --sql &gt; migration.sql</pre>
+</div>
+<div class="section" id="getting-the-start-version">
+<h3>Getting the Start Version<a class="headerlink" href="#getting-the-start-version" title="Permalink to this headline">¶</a></h3>
+<p>Notice that our migration script started at the base - this is the default when using offline
+mode, as no database connection is present and there&#8217;s no <tt class="docutils literal"><span class="pre">alembic_version</span></tt> table to read from.</p>
+<p>One way to provide a starting version in offline mode is to provide a range to the command line.
+This is accomplished by providing the &#8220;version&#8221; in <tt class="docutils literal"><span class="pre">start:end</span></tt> syntax:</p>
+<div class="highlight-python"><pre>$ alembic upgrade 1975ea83b712:ae1027a6acf --sql &gt; migration.sql</pre>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">start:end</span></tt> syntax is only allowed in offline mode; in &#8220;online&#8221; mode, the <tt class="docutils literal"><span class="pre">alembic_version</span></tt>
+table is always used to get at the current version.</p>
+<p>It&#8217;s also possible to have the <tt class="docutils literal"><span class="pre">env.py</span></tt> script retrieve the &#8220;last&#8221; version from
+the local environment, such as from a local file.   A scheme like this would basically
+treat a local file in the same way <tt class="docutils literal"><span class="pre">alembic_version</span></tt> works:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">is_offline_mode</span><span class="p">():</span>
+    <span class="n">version_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">config_file_name</span><span class="p">),</span> <span class="s">&quot;version.txt&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">version_file</span><span class="p">):</span>
+        <span class="n">current_version</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">version_file</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">current_version</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">dialect_name</span><span class="o">=</span><span class="n">engine</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">starting_version</span><span class="o">=</span><span class="n">current_version</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">run_migrations</span><span class="p">()</span>
+    <span class="n">end_version</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get_revision_argument</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">end_version</span> <span class="ow">and</span> <span class="n">end_version</span> <span class="o">!=</span> <span class="n">current_version</span><span class="p">:</span>
+        <span class="nb">open</span><span class="p">(</span><span class="n">version_file</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">end_version</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="writing-migration-scripts-to-support-script-generation">
+<h3>Writing Migration Scripts to Support Script Generation<a class="headerlink" href="#writing-migration-scripts-to-support-script-generation" title="Permalink to this headline">¶</a></h3>
+<p>The challenge of SQL script generation is that the scripts we generate can&#8217;t rely upon
+any client/server database access.  This means a migration script that pulls some rows
+into memory via a <tt class="docutils literal"><span class="pre">SELECT</span></tt> statement will not work in <tt class="docutils literal"><span class="pre">--sql</span></tt> mode.   It&#8217;s also
+important that the Alembic directives, all of which are designed specifically to work
+in both &#8220;live execution&#8221; as well as &#8220;offline SQL generation&#8221; mode, are used.</p>
+</div>
+<div class="section" id="customizing-the-environment">
+<h3>Customizing the Environment<a class="headerlink" href="#customizing-the-environment" title="Permalink to this headline">¶</a></h3>
+<p>Users of the <tt class="docutils literal"><span class="pre">--sql</span></tt> option are encouraged to hack their <tt class="docutils literal"><span class="pre">env.py</span></tt> files to suit their
+needs.  The <tt class="docutils literal"><span class="pre">env.py</span></tt> script as provided is broken into two sections: <tt class="docutils literal"><span class="pre">run_migrations_online()</span></tt>
+and <tt class="docutils literal"><span class="pre">run_migrations_offline()</span></tt>.  Which function is run is determined at the bottom of the
+script by reading <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.is_offline_mode" title="alembic.environment.EnvironmentContext.is_offline_mode"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.is_offline_mode()</span></tt></a>, which basically determines if the
+<tt class="docutils literal"><span class="pre">--sql</span></tt> flag was enabled.</p>
+<p>For example, a multiple database configuration may want to run through each
+database and set the output of the migrations to different named files - the <a class="reference internal" href="api.html#alembic.environment.EnvironmentContext.configure" title="alembic.environment.EnvironmentContext.configure"><tt class="xref py py-meth docutils literal"><span class="pre">EnvironmentContext.configure()</span></tt></a>
+function accepts a parameter <tt class="docutils literal"><span class="pre">output_buffer</span></tt> for this purpose.  Below we illustrate
+this within the <tt class="docutils literal"><span class="pre">run_migrations_offline()</span></tt> function:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">context</span>
+<span class="kn">import</span> <span class="nn">myapp</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">db_1</span> <span class="o">=</span> <span class="n">myapp</span><span class="o">.</span><span class="n">db_1</span>
+<span class="n">db_2</span> <span class="o">=</span> <span class="n">myapp</span><span class="o">.</span><span class="n">db_2</span>
+
+<span class="k">def</span> <span class="nf">run_migrations_offline</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Run migrations *without* a SQL connection.&quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">file_</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">&quot;db1&quot;</span><span class="p">,</span> <span class="n">db_1</span><span class="p">,</span> <span class="s">&quot;db1.sql&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;db2&quot;</span><span class="p">,</span> <span class="n">db_2</span><span class="p">,</span> <span class="s">&quot;db2.sql&quot;</span><span class="p">),</span>
+    <span class="p">]:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span>
+                    <span class="n">url</span><span class="o">=</span><span class="n">engine</span><span class="o">.</span><span class="n">url</span><span class="p">,</span>
+                    <span class="n">transactional_ddl</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+                    <span class="n">output_buffer</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">file_</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">))</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;-- running migrations for &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">name</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">run_migrations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;Wrote file &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">file_</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">run_migrations_online</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Run migrations *with* a SQL connection.&quot;&quot;&quot;</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">engine</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s">&quot;db1&quot;</span><span class="p">,</span> <span class="n">db_1</span><span class="p">),</span>
+        <span class="p">(</span><span class="s">&quot;db2&quot;</span><span class="p">,</span> <span class="n">db_2</span><span class="p">),</span>
+    <span class="p">]:</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">configure</span><span class="p">(</span><span class="n">connection</span><span class="o">=</span><span class="n">connection</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">run_migrations</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">session</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+            <span class="k">raise</span>
+
+<span class="k">if</span> <span class="n">context</span><span class="o">.</span><span class="n">is_offline_mode</span><span class="p">():</span>
+    <span class="n">run_migrations_offline</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">run_migrations_online</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="working-with-branches">
+<h2>Working with Branches<a class="headerlink" href="#working-with-branches" title="Permalink to this headline">¶</a></h2>
+<p>A <em>branch</em> describes when a source tree is broken up into two versions representing
+two independent sets of changes.   The challenge of a branch is to <em>merge</em> the
+branches into a single series of changes.  Alembic&#8217;s GUID-based version number scheme
+allows branches to be reconciled.</p>
+<p>Consider if we merged into our source repository another branch which contained
+a revision for another table called <tt class="docutils literal"><span class="pre">shopping_cart</span></tt>.   This revision was made
+against our first Alembic revision, the one that generated <tt class="docutils literal"><span class="pre">account</span></tt>.   After
+loading the second source tree in, a new file <tt class="docutils literal"><span class="pre">27c6a30d7c24.py</span></tt> exists within
+our <tt class="docutils literal"><span class="pre">versions</span></tt> directory.   Both it, as well as <tt class="docutils literal"><span class="pre">ae1027a6acf.py</span></tt>, reference
+<tt class="docutils literal"><span class="pre">1975ea83b712</span></tt> as the &#8220;downgrade&#8221; revision.  To illustrate:</p>
+<div class="highlight-python"><pre># main source tree:
+1975ea83b712 (add account table) -&gt; ae1027a6acf (add a column)
+
+# branched source tree
+1975ea83b712 (add account table) -&gt; 27c6a30d7c24 (add shopping cart table)</pre>
+</div>
+<p>So above we can see 1975ea83b712 is our <em>branch point</em>.  The Alembic command <tt class="docutils literal"><span class="pre">branches</span></tt>
+illustrates this fact:</p>
+<div class="highlight-python"><pre>$ alembic branches
+None -&gt; 1975ea83b712 (branchpoint), add account table
+     -&gt; 1975ea83b712 -&gt; 27c6a30d7c24 (head), add shopping cart table
+     -&gt; 1975ea83b712 -&gt; ae1027a6acf (head), add a column</pre>
+</div>
+<p>History shows it too, illustrating two <tt class="docutils literal"><span class="pre">head</span></tt> entries as well
+as a <tt class="docutils literal"><span class="pre">branchpoint</span></tt>:</p>
+<div class="highlight-python"><pre>$ alembic history
+
+1975ea83b712 -&gt; 27c6a30d7c24 (head), add shopping cart table
+
+1975ea83b712 -&gt; ae1027a6acf (head), add a column
+None -&gt; 1975ea83b712 (branchpoint), add account table</pre>
+</div>
+<p>Alembic will also refuse to run any migrations until this is resolved:</p>
+<div class="highlight-python"><pre>$ alembic upgrade head
+INFO  [alembic.context] Context class PostgresqlContext.
+INFO  [alembic.context] Will assume transactional DDL.
+Exception: Only a single head supported so far...</pre>
+</div>
+<p>We resolve this branch by editing the files to be in a straight line.   In this case we edit
+<tt class="docutils literal"><span class="pre">27c6a30d7c24.py</span></tt> to point to <tt class="docutils literal"><span class="pre">ae1027a6acf.py</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="sd">&quot;&quot;&quot;add shopping cart table</span>
+
+<span class="sd">Revision ID: 27c6a30d7c24</span>
+<span class="sd">Revises: ae1027a6acf  # changed from 1975ea83b712</span>
+<span class="sd">Create Date: 2011-11-08 13:02:14.212810</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c"># revision identifiers, used by Alembic.</span>
+<span class="n">revision</span> <span class="o">=</span> <span class="s">&#39;27c6a30d7c24&#39;</span>
+<span class="c"># changed from 1975ea83b712</span>
+<span class="n">down_revision</span> <span class="o">=</span> <span class="s">&#39;ae1027a6acf&#39;</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">branches</span></tt> command then shows no branches:</p>
+<div class="highlight-python"><pre>$ alembic branches
+$</pre>
+</div>
+<p>And the history is similarly linear:</p>
+<div class="highlight-python"><pre>$ alembic history
+
+ae1027a6acf -&gt; 27c6a30d7c24 (head), add shopping cart table
+1975ea83b712 -&gt; ae1027a6acf, add a column
+None -&gt; 1975ea83b712, add account table</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A future command called <tt class="docutils literal"><span class="pre">splice</span></tt> will automate this process.</p>
+</div>
+</div>
+<div class="section" id="building-an-up-to-date-database-from-scratch">
+<span id="building-uptodate"></span><h2>Building an Up to Date Database from Scratch<a class="headerlink" href="#building-an-up-to-date-database-from-scratch" title="Permalink to this headline">¶</a></h2>
+<p>There&#8217;s a theory of database migrations that says that the revisions in existence for a database should be
+able to go from an entirely blank schema to the finished product, and back again.   Alembic can roll
+this way.   Though we think it&#8217;s kind of overkill, considering that SQLAlchemy itself can emit
+the full CREATE statements for any given model using <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.MetaData.create_all" title="(in SQLAlchemy v0.8)"><tt class="xref py py-meth docutils literal"><span class="pre">create_all()</span></tt></a>.   If you check out
+a copy of an application, running this will give you the entire database in one shot, without the need
+to run through all those migration files, which are instead tailored towards applying incremental
+changes to an existing database.</p>
+<p>Alembic can integrate with a <a class="reference external" href="http://www.sqlalchemy.org/docs/core/schema.html#sqlalchemy.schema.MetaData.create_all" title="(in SQLAlchemy v0.8)"><tt class="xref py py-meth docutils literal"><span class="pre">create_all()</span></tt></a> script quite easily.  After running the
+create operation, tell Alembic to create a new version table, and to stamp it with the most recent
+revision (i.e. <tt class="docutils literal"><span class="pre">head</span></tt>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># inside of a &quot;create the database&quot; script, first create</span>
+<span class="c"># tables:</span>
+<span class="n">my_metadata</span><span class="o">.</span><span class="n">create_all</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span>
+
+<span class="c"># then, load the Alembic configuration and generate the</span>
+<span class="c"># version table, &quot;stamping&quot; it with the most recent rev:</span>
+<span class="kn">from</span> <span class="nn">alembic.config</span> <span class="kn">import</span> <span class="n">Config</span>
+<span class="kn">from</span> <span class="nn">alembic</span> <span class="kn">import</span> <span class="n">command</span>
+<span class="n">alembic_cfg</span> <span class="o">=</span> <span class="n">Config</span><span class="p">(</span><span class="s">&quot;/path/to/yourapp/alembic.ini&quot;</span><span class="p">)</span>
+<span class="n">command</span><span class="o">.</span><span class="n">stamp</span><span class="p">(</span><span class="n">alembic_cfg</span><span class="p">,</span> <span class="s">&quot;head&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When this approach is used, the application can generate the database using normal SQLAlchemy
+techniques instead of iterating through hundreds of migration scripts.   Now, the purpose of the
+migration scripts is relegated just to movement between versions on out-of-date databases, not
+<em>new</em> databases.    You can now remove old migration files that are no longer represented
+on any existing environments.</p>
+<p>To prune old migration files, simply delete the files.   Then, in the earliest, still-remaining
+migration file, set <tt class="docutils literal"><span class="pre">down_revision</span></tt> to <tt class="docutils literal"><span class="pre">None</span></tt>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># replace this:</span>
+<span class="c">#down_revision = &#39;290696571ad2&#39;</span>
+
+<span class="c"># with this:</span>
+<span class="n">down_revision</span> <span class="o">=</span> <span class="bp">None</span>
+</pre></div>
+</div>
+<p>That file now becomes the &#8220;base&#8221; of the migration series.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Tutorial</a><ul>
+<li><a class="reference internal" href="#the-migration-environment">The Migration Environment</a></li>
+<li><a class="reference internal" href="#creating-an-environment">Creating an Environment</a></li>
+<li><a class="reference internal" href="#editing-the-ini-file">Editing the .ini File</a></li>
+<li><a class="reference internal" href="#create-a-migration-script">Create a Migration Script</a></li>
+<li><a class="reference internal" href="#running-our-first-migration">Running our First Migration</a></li>
+<li><a class="reference internal" href="#running-our-second-migration">Running our Second Migration</a></li>
+<li><a class="reference internal" href="#relative-migration-identifiers">Relative Migration Identifiers</a></li>
+<li><a class="reference internal" href="#getting-information">Getting Information</a></li>
+<li><a class="reference internal" href="#downgrading">Downgrading</a></li>
+<li><a class="reference internal" href="#auto-generating-migrations">Auto Generating Migrations</a><ul>
+<li><a class="reference internal" href="#rendering-custom-types-in-autogenerate">Rendering Custom Types in Autogenerate</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#generating-sql-scripts-a-k-a-offline-mode">Generating SQL Scripts (a.k.a. &#8220;Offline Mode&#8221;)</a><ul>
+<li><a class="reference internal" href="#getting-the-start-version">Getting the Start Version</a></li>
+<li><a class="reference internal" href="#writing-migration-scripts-to-support-script-generation">Writing Migration Scripts to Support Script Generation</a></li>
+<li><a class="reference internal" href="#customizing-the-environment">Customizing the Environment</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#working-with-branches">Working with Branches</a></li>
+<li><a class="reference internal" href="#building-an-up-to-date-database-from-scratch">Building an Up to Date Database from Scratch</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="front.html"
+                        title="previous chapter">Front Matter</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ops.html"
+                        title="next chapter">Operation Reference</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/tutorial.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ops.html" title="Operation Reference"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="front.html" title="Front Matter"
+             >previous</a> |</li>
+        <li><a href="index.html">Alembic 0.5.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010-2013, Mike Bayer.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

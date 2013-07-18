@@ -1,0 +1,4 @@
+http-parser>=0.7.7
+socketpool>=0.5.0
+nose
+webob

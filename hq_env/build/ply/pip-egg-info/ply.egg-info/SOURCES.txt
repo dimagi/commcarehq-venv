@@ -1,0 +1,12 @@
+README
+pip-egg-info/ply.egg-info/PKG-INFO
+pip-egg-info/ply.egg-info/SOURCES.txt
+pip-egg-info/ply.egg-info/dependency_links.txt
+pip-egg-info/ply.egg-info/top_level.txt
+ply/__init__.py
+ply/cpp.py
+ply/ctokens.py
+ply/lex.py
+ply/yacc.py
+test/testlex.py
+test/testyacc.py
