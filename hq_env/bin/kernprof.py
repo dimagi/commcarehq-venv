@@ -1,4 +1,7 @@
-#!/home/dmyung/src/commcarehq-venv/hq_env/bin/python
+#!/usr/bin/env python2.7
+
+import os; activate_this=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'activate_this.py'); execfile(activate_this, dict(__file__=activate_this)); del os, activate_this
+
 # -*- coding: UTF-8 -*-
 """ Script to conveniently run profilers on code in a variety of circumstances.
 """
@@ -231,4 +234,3 @@ def main(args):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
-

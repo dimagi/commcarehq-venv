@@ -1,4 +1,7 @@
-#!/home/dmyung/src/commcarehq-venv/hq_env/bin/python
+#!/usr/bin/env python2.7
+
+import os; activate_this=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'activate_this.py'); execfile(activate_this, dict(__file__=activate_this)); del os, activate_this
+
 """The CherryPy daemon."""
 
 import sys
@@ -106,4 +109,3 @@ if __name__ == '__main__':
     start(options.config, options.daemonize,
           options.environment, options.fastcgi, options.scgi,
           options.pidfile, options.imports, options.cgi)
-

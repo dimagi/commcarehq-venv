@@ -1,4 +1,4 @@
-#!/home/dmyung/src/commcarehq-venv/hq_env/bin/python
+#!/usr/bin/env python2.7
 #
 # The Python Imaging Library.
 # $Id$
@@ -18,6 +18,9 @@
 #
 
 from __future__ import print_function
+
+import os; activate_this=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'activate_this.py'); execfile(activate_this, dict(__file__=activate_this)); del os, activate_this
+
 
 import site
 import getopt, glob, sys
