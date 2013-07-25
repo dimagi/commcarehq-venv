@@ -1,7 +1,9 @@
-from alembic.ddl.impl import DefaultImpl
-from sqlalchemy import types as sqltypes
-from .base import compiles, alter_table, format_table_name, RenameTable
 import re
+
+from sqlalchemy import types as sqltypes
+
+from .base import compiles, alter_table, format_table_name, RenameTable
+from .impl import DefaultImpl
 
 class PostgresqlImpl(DefaultImpl):
     __dialect__ = 'postgresql'
@@ -9,14 +11,15 @@ class PostgresqlImpl(DefaultImpl):
 
     def compare_server_default(self, inspector_column,
                             metadata_column,
-                            rendered_metadata_default):
+                            rendered_metadata_default,
+                            rendered_inspector_default):
 
         # don't do defaults for SERIAL columns
         if metadata_column.primary_key and \
             metadata_column is metadata_column.table._autoincrement_column:
             return False
 
-        conn_col_default = inspector_column['default']
+        conn_col_default = rendered_inspector_default
 
         if None in (conn_col_default, rendered_metadata_default):
             return conn_col_default != rendered_metadata_default

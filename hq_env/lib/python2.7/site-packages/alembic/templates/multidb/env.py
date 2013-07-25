@@ -14,7 +14,7 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('alembic.env')
 
 # gather section names referring to different
 # databases.  These are named "engine1", "engine2"
@@ -64,12 +64,10 @@ def run_migrations_offline():
         logger.info("Migrating database %s" % name)
         file_ = "%s.sql" % name
         logger.info("Writing output to %s" % file_)
-        context.configure(
-                    url=rec['url'],
-                    output_buffer=open(file_, 'w')
-                )
-        with context.begin_transaction():
-            context.run_migrations(engine_name=name)
+        with open(file_, 'w') as buffer:
+            context.configure(url=rec['url'], output_buffer=buffer)
+            with context.begin_transaction():
+                context.run_migrations(engine_name=name)
 
 def run_migrations_online():
     """Run migrations in 'online' mode.
@@ -104,8 +102,8 @@ def run_migrations_online():
             logger.info("Migrating database %s" % name)
             context.configure(
                         connection=rec['connection'],
-                        upgrade_token="%s_upgrades",
-                        downgrade_token="%s_downgrades",
+                        upgrade_token="%s_upgrades" % name,
+                        downgrade_token="%s_downgrades" % name,
                         target_metadata=target_metadata.get(name)
                     )
             context.run_migrations(engine_name=name)

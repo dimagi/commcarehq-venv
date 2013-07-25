@@ -1,10 +1,11 @@
-from sqlalchemy import text
 from sqlalchemy.sql.expression import _BindParamClause
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy import schema
-from alembic.ddl import base
-from alembic import util
+from sqlalchemy import schema, text
 from sqlalchemy import types as sqltypes
+
+from ..compat import string_types, text_type, with_metaclass
+from .. import util
+from . import base
 
 class ImplMeta(type):
     def __init__(cls, classname, bases, dict_):
@@ -15,7 +16,7 @@ class ImplMeta(type):
 
 _impls = {}
 
-class DefaultImpl(object):
+class DefaultImpl(with_metaclass(ImplMeta)):
     """Provide the entrypoint for major migration operations,
     including database-specific behavioral variances.
 
@@ -27,7 +28,6 @@ class DefaultImpl(object):
     bulk inserts.
 
     """
-    __metaclass__ = ImplMeta
     __dialect__ = 'default'
 
     transactional_ddl = False
@@ -50,7 +50,8 @@ class DefaultImpl(object):
         return _impls[dialect.name]
 
     def static_output(self, text):
-        self.output_buffer.write(text + "\n\n")
+        self.output_buffer.write(text_type(text + "\n\n"))
+        self.output_buffer.flush()
 
     @property
     def bind(self):
@@ -59,13 +60,13 @@ class DefaultImpl(object):
     def _exec(self, construct, execution_options=None,
                             multiparams=(),
                             params=util.immutabledict()):
-        if isinstance(construct, basestring):
+        if isinstance(construct, string_types):
             construct = text(construct)
         if self.as_sql:
             if multiparams or params:
                 # TODO: coverage
                 raise Exception("Execution arguments not allowed with as_sql")
-            self.static_output(unicode(
+            self.static_output(text_type(
                     construct.compile(dialect=self.dialect)
                     ).replace("\t", "    ").strip() + self.command_terminator)
         else:
@@ -181,7 +182,7 @@ class DefaultImpl(object):
 
     def compare_type(self, inspector_column, metadata_column):
 
-        conn_type = inspector_column['type']
+        conn_type = inspector_column.type
         metadata_type = metadata_column.type
 
         metadata_impl = metadata_type.dialect_impl(self.dialect)
@@ -201,9 +202,9 @@ class DefaultImpl(object):
 
     def compare_server_default(self, inspector_column,
                             metadata_column,
-                            rendered_metadata_default):
-        conn_col_default = inspector_column['default']
-        return conn_col_default != rendered_metadata_default
+                            rendered_metadata_default,
+                            rendered_inspector_default):
+        return rendered_inspector_default != rendered_metadata_default
 
     def start_migrations(self):
         """A hook called when :meth:`.EnvironmentContext.run_migrations`

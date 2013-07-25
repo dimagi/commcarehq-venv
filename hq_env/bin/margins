@@ -1,12 +1,10 @@
-#!/usr/bin/env python2.7
-
-import os; activate_this=os.path.join(os.path.dirname(os.path.realpath(__file__)), 'activate_this.py'); execfile(activate_this, dict(__file__=activate_this)); del os, activate_this
-
+#!/home/travis/virtualenv/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'xlutils==1.4.1','console_scripts','margins'
 __requires__ = 'xlutils==1.4.1'
 import sys
 from pkg_resources import load_entry_point
 
-sys.exit(
-   load_entry_point('xlutils==1.4.1', 'console_scripts', 'margins')()
-)
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('xlutils==1.4.1', 'console_scripts', 'margins')()
+    )

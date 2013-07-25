@@ -1,0 +1,16 @@
+Metadata-Version: 1.1
+Name: meld3
+Version: 0.6.10
+Summary: meld3 is an HTML/XML templating engine.
+Home-page: https://github.com/supervisor/meld3
+Author: Mike Naberezny
+Author-email: mike@naberezny.com
+License: ZPL 2.1
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: Python :: 2 :: Only
+Classifier: Topic :: Text Processing :: Markup :: HTML
