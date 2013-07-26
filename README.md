@@ -8,11 +8,10 @@ This venv was built on a ubuntu 12.04 64 bit machine running python 2.7.3
 Updating the virtualenv
 -----------------------
 
-You do _not_ need an Ubuntu box yourself, if you have Vagrant installed. 
+You do _not_ need an Ubuntu box yourself, if you have [Vagrant](http://docs.vagrantup.com/v2/installation/) installed. 
 (This requires VirtualBox)
 
 ```
-$ gem install vagrant
 $ vagrant up
 ```
 
