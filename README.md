@@ -9,7 +9,7 @@ Updating the virtualenv
 -----------------------
 
 You do _not_ need an Ubuntu box yourself, if you have [Vagrant](http://docs.vagrantup.com/v2/installation/) installed. 
-(This requires VirtualBox)
+(This requires VirtualBox >= 4.2.16)
 
 ```
 $ vagrant up
