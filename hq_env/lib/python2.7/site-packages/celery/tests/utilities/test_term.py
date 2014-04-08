@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
+from kombu.utils import encoding
+from kombu.utils.encoding import str_t
+
 from celery.utils import term
 from celery.utils.term import colored, fg
 
@@ -8,6 +11,16 @@ from celery.tests.utils import Case
 
 
 class test_colored(Case):
+
+    def setUp(self):
+        self._prev_encoding = encoding.default_encoding
+
+        def getdefaultencoding():
+            return 'utf-8'
+        encoding.default_encoding = getdefaultencoding
+
+    def tearDown(self):
+        encoding.default_encoding = self._prev_encoding
 
     def test_colors(self):
         colors = (
@@ -38,7 +51,7 @@ class test_colored(Case):
         self.assertTrue(str(colored().iwhite('f')))
         self.assertTrue(str(colored().reset('f')))
 
-        self.assertTrue(str(colored().green(u'∂bar')))
+        self.assertTrue(str_t(colored().green(u'∂bar')))
 
         self.assertTrue(
             colored().red(u'éefoo') + colored().green(u'∂bar'))

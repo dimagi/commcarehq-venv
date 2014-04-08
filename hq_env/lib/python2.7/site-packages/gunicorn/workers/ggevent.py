@@ -5,6 +5,7 @@
 
 from __future__ import with_statement
 
+import errno
 import os
 import sys
 from datetime import datetime
@@ -21,12 +22,30 @@ except ImportError:
     raise RuntimeError("You need gevent installed to use this worker.")
 from gevent.pool import Pool
 from gevent.server import StreamServer
+from gevent.socket import wait_write
 from gevent import pywsgi
 
 import gunicorn
 from gunicorn.workers.async import AsyncWorker
+from gunicorn.http.wsgi import sendfile as o_sendfile
 
 VERSION = "gevent/%s gunicorn/%s" % (gevent.__version__, gunicorn.__version__)
+
+def _gevent_sendfile(fdout, fdin, offset, nbytes):
+    while True:
+        try:
+            return o_sendfile(fdout, fdin, offset, nbytes)
+        except OSError as e:
+            if e.args[0] == errno.EAGAIN:
+                wait_write(fdout)
+            else:
+                raise
+
+def patch_sendfile():
+    from gunicorn.http import wsgi
+
+    if o_sendfile is not None:
+        setattr(wsgi, "sendfile", _gevent_sendfile)
 
 BASE_WSGI_ENV = {
     'GATEWAY_INTERFACE': 'CGI/1.1',
@@ -49,6 +68,15 @@ class GeventWorker(AsyncWorker):
         from gevent import monkey
         monkey.noisy = False
         monkey.patch_all()
+
+        # monkey patch sendfile to make it none blocking
+        patch_sendfile()
+
+    def notify(self):
+        super(GeventWorker, self).notify()
+        if self.ppid != os.getppid():
+            self.log.info("Parent changed, shutting down: %s", self)
+            sys.exit(0)
 
     def timeout_ctx(self):
         return gevent.Timeout(self.cfg.keepalive, False)
@@ -75,23 +103,27 @@ class GeventWorker(AsyncWorker):
             server.start()
             servers.append(server)
 
-        pid = os.getpid()
         try:
             while self.alive:
                 self.notify()
-
-                if pid == os.getpid() and self.ppid != os.getppid():
-                    self.log.info("Parent changed, shutting down: %s", self)
-                    break
-
                 gevent.sleep(1.0)
 
         except KeyboardInterrupt:
             pass
+        except:
+            try:
+                server.stop()
+            except:
+                pass
+            raise
 
         try:
             # Stop accepting requests
-            [server.stop_accepting() for server in servers]
+            for server in servers:
+                if hasattr(server, 'close'): # gevent 1.0
+                    server.close()
+                if hasattr(server, 'kill'):  # gevent < 1.0
+                    server.kill()
 
             # Handle current requests until graceful_timeout
             ts = time.time()
@@ -118,6 +150,8 @@ class GeventWorker(AsyncWorker):
         try:
             super(GeventWorker, self).handle_request(*args)
         except gevent.GreenletExit:
+            pass
+        except SystemExit:
             pass
 
     if gevent.version_info[0] == 0:
@@ -149,9 +183,12 @@ class PyWSGIHandler(pywsgi.WSGIHandler):
         start = datetime.fromtimestamp(self.time_start)
         finish = datetime.fromtimestamp(self.time_finish)
         response_time = finish - start
-        resp = GeventResponse(self.status, self.response_headers,
-                self.response_length)
-        req_headers = [h.split(":", 1) for h in self.headers.headers]
+        resp_headers = getattr(self, 'response_headers', {})
+        resp = GeventResponse(self.status, resp_headers, self.response_length)
+        if hasattr(self, 'headers'):
+            req_headers = [h.split(":", 1) for h in self.headers.headers]
+        else:
+            req_headers = []
         self.server.log.access(resp, req_headers, self.environ, response_time)
 
     def get_environ(self):
