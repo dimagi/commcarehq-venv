@@ -1,5 +1,7 @@
 # Copyright (c) 2009 Denis Bilenko. See LICENSE for details.
-__all__ = ['wrap_errors', 'lazy_property']
+__all__ = ['wrap_errors']
+
+import sys
 
 
 class wrap_errors(object):
@@ -35,8 +37,8 @@ class wrap_errors(object):
         func = self.func
         try:
             return func(*args, **kwargs)
-        except self.errors, ex:
-            return ex
+        except self.errors:
+            return sys.exc_info()[1]
 
     def __str__(self):
         return str(self.func)
@@ -46,20 +48,3 @@ class wrap_errors(object):
 
     def __getattr__(self, item):
         return getattr(self.func, item)
-
-
-# XXX no longer used anywhere, remove it
-class lazy_property(object):
-    '''A decorator similar to :meth:`property` that only calls the *function* once.'''
-
-    def __init__(self, function):
-        import warnings
-        warnings.warn("gevent.util.lazy_propery is deprecated", DeprecationWarning, stacklevel=2)
-        self._calculate = function
-
-    def __get__(self, obj, _=None):
-        if obj is None:
-            return self
-        value = self._calculate(obj)
-        setattr(obj, self._calculate.func_name, value)
-        return value

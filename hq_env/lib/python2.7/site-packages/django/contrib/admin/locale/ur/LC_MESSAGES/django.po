@@ -1,185 +1,172 @@
 # This file is distributed under the same license as the Django package.
 #
+# Translators:
+# Mansoorulhaq Mansoor <mansoorulhaq1986@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: Django\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-20 21:03+0100\n"
-"PO-Revision-Date: 2011-03-04 18:44+0000\n"
-"Last-Translator: Jannis <jannis@leidel.info>\n"
-"Language-Team: Urdu <None>\n"
+"POT-Creation-Date: 2013-01-01 16:10+0100\n"
+"PO-Revision-Date: 2013-01-02 08:52+0000\n"
+"Last-Translator: Ramiro Morales <cramm0@gmail.com>\n"
+"Language-Team: Urdu (http://www.transifex.com/projects/p/django/language/"
+"ur/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ur\n"
-"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: actions.py:49
+#: actions.py:48
 #, python-format
 msgid "Successfully deleted %(count)d %(items)s."
 msgstr "%(count)d %(items)s کو کامیابی سے مٹا دیا گیا۔"
 
-#: actions.py:61 options.py:1219
+#: actions.py:60 options.py:1347
 #, python-format
 msgid "Cannot delete %(name)s"
 msgstr "%(name)s نہیں مٹایا جا سکتا"
 
-#: actions.py:63 options.py:1221
+#: actions.py:62 options.py:1349
 msgid "Are you sure?"
 msgstr "آپ کو یقین ھے؟"
 
-#: actions.py:85
+#: actions.py:83
 #, python-format
 msgid "Delete selected %(verbose_name_plural)s"
 msgstr "منتخب شدہ %(verbose_name_plural)s مٹائیں"
 
-#: filterspecs.py:54
-#, python-format
-msgid ""
-"<h3>By %s:</h3>\n"
-"<ul>\n"
-msgstr ""
-"<h3>از %s:</h3>\n"
-"<ul>\n"
-
-#: filterspecs.py:104 filterspecs.py:139 filterspecs.py:168 filterspecs.py:258
+#: filters.py:101 filters.py:197 filters.py:237 filters.py:274 filters.py:380
 msgid "All"
 msgstr "تمام"
 
-#: filterspecs.py:139
+#: filters.py:238
 msgid "Yes"
 msgstr "ھاں"
 
-#: filterspecs.py:139
+#: filters.py:239
 msgid "No"
 msgstr "نھیں"
 
-#: filterspecs.py:150
+#: filters.py:253
 msgid "Unknown"
 msgstr "نامعلوم"
 
-#: filterspecs.py:196
+#: filters.py:308
 msgid "Any date"
 msgstr "کوئی تاریخ"
 
-#: filterspecs.py:197
+#: filters.py:309
 msgid "Today"
 msgstr "آج"
 
-#: filterspecs.py:200
+#: filters.py:313
 msgid "Past 7 days"
 msgstr "گزشتہ سات دن"
 
-#: filterspecs.py:203
+#: filters.py:317
 msgid "This month"
 msgstr "یہ مھینہ"
 
-#: filterspecs.py:205
+#: filters.py:321
 msgid "This year"
 msgstr "یہ سال"
 
 #: forms.py:9
+#, python-format
 msgid ""
-"Please enter a correct username and password. Note that both fields are case-"
-"sensitive."
+"Please enter the correct %(username)s and password for a staff account. Note "
+"that both fields may be case-sensitive."
 msgstr ""
-"براہ کرم درست نام صارف اور لفظ اجازت درج کریں۔ یاد رھے دونوں خانے چھوٹے بڑے "
-"حروف کی شناخت کے لئے حساس ھیں۔"
 
-#: forms.py:18
+#: forms.py:19
 msgid "Please log in again, because your session has expired."
 msgstr "براہ مھربانی دوباہ اندر جائیں، کیونکہ آپ کی نشست کی مدت ختم ھو چکی ھے۔"
 
-#: forms.py:37
-#, python-format
-msgid "Your e-mail address is not your username. Try '%s' instead."
-msgstr ""
-"آپ کے برقی خط کا پتہ آپ کا نام صارف نھیں ھے۔ اس کی بجائے '%s' کی کوشش کریں۔"
-
-#: helpers.py:19
+#: helpers.py:23
 msgid "Action:"
 msgstr "کاروائی:"
 
-#: models.py:19
+#: models.py:24
 msgid "action time"
 msgstr "کاروائی کا وقت"
 
-#: models.py:22
+#: models.py:27
 msgid "object id"
 msgstr "شے کا شناختی نمبر"
 
-#: models.py:23
+#: models.py:28
 msgid "object repr"
 msgstr "شے کا نمائندہ"
 
-#: models.py:24
+#: models.py:29
 msgid "action flag"
 msgstr "کاروائی کا پرچم"
 
-#: models.py:25
+#: models.py:30
 msgid "change message"
 msgstr "پیغام تبدیل کریں"
 
-#: models.py:28
+#: models.py:35
 msgid "log entry"
 msgstr "لاگ کا اندراج"
 
-#: models.py:29
+#: models.py:36
 msgid "log entries"
 msgstr "لاگ کے اندراج"
 
-#: options.py:147 options.py:162
+#: models.py:45
+#, python-format
+msgid "Added \"%(object)s\"."
+msgstr ""
+
+#: models.py:47
+#, python-format
+msgid "Changed \"%(object)s\" - %(changes)s"
+msgstr ""
+
+#: models.py:52
+#, python-format
+msgid "Deleted \"%(object)s.\""
+msgstr ""
+
+#: models.py:54
+msgid "LogEntry Object"
+msgstr ""
+
+#: options.py:156 options.py:172
 msgid "None"
 msgstr "کوئی نھیں"
 
-#: options.py:627
+#: options.py:684
 #, python-format
 msgid "Changed %s."
 msgstr "%s تبدیل کریں۔"
 
-#: options.py:627 options.py:637
+#: options.py:684 options.py:694
 msgid "and"
 msgstr "اور"
 
-#: options.py:632
+#: options.py:689
 #, python-format
 msgid "Added %(name)s \"%(object)s\"."
 msgstr "%(name)s \"%(object)s\" کا اضافہ کیا گیا۔"
 
-#: options.py:636
+#: options.py:693
 #, python-format
 msgid "Changed %(list)s for %(name)s \"%(object)s\"."
 msgstr "%(name)s \"%(object)s\" %(list)s کی تبدیلی کی گئی۔"
 
-#: options.py:641
+#: options.py:698
 #, python-format
 msgid "Deleted %(name)s \"%(object)s\"."
 msgstr "%(name)s \"%(object)s\" مٹایا گیا۔۔"
 
-#: options.py:645
+#: options.py:702
 msgid "No fields changed."
 msgstr "کوئی خانہ تبدیل نھیں کیا گیا۔"
 
-#: options.py:717
-#, python-format
-msgid "The %(name)s \"%(obj)s\" was added successfully."
-msgstr "%(name)s \"%(obj)s\" کا کامیابی سے اضافہ کیا گیا۔"
-
-#: options.py:721 options.py:761
-msgid "You may edit it again below."
-msgstr "آپ اس کو نیچے دوبارہ تبدیل کر سکتے ھیں۔"
-
-#: options.py:731 options.py:771
-#, python-format
-msgid "You may add another %s below."
-msgstr "آپ نیچے مزید %s درج کر سکتے ھیں۔"
-
-#: options.py:759
-#, python-format
-msgid "The %(name)s \"%(obj)s\" was changed successfully."
-msgstr "%(name)s \"%(obj)s\" کی تبدیلی کامیابی سے ھو گئی۔"
-
-#: options.py:767
+#: options.py:807 options.py:860
 #, python-format
 msgid ""
 "The %(name)s \"%(obj)s\" was added successfully. You may edit it again below."
@@ -187,7 +174,38 @@ msgstr ""
 "%(name)s \"%(obj)s\" کا کامیابی سے اضافہ کیا گیا۔ نیچے آپ دوبارہ اسے مدوّن کر "
 "سکتے ھیں۔"
 
-#: options.py:827 options.py:1085
+#: options.py:835
+#, python-format
+msgid ""
+"The %(name)s \"%(obj)s\" was added successfully. You may add another "
+"%(name)s below."
+msgstr ""
+
+#: options.py:839
+#, python-format
+msgid "The %(name)s \"%(obj)s\" was added successfully."
+msgstr "%(name)s \"%(obj)s\" کا کامیابی سے اضافہ کیا گیا۔"
+
+#: options.py:853
+#, python-format
+msgid ""
+"The %(name)s \"%(obj)s\" was changed successfully. You may edit it again "
+"below."
+msgstr ""
+
+#: options.py:867
+#, python-format
+msgid ""
+"The %(name)s \"%(obj)s\" was changed successfully. You may add another "
+"%(name)s below."
+msgstr ""
+
+#: options.py:873
+#, python-format
+msgid "The %(name)s \"%(obj)s\" was changed successfully."
+msgstr "%(name)s \"%(obj)s\" کی تبدیلی کامیابی سے ھو گئی۔"
+
+#: options.py:951 options.py:1211
 msgid ""
 "Items must be selected in order to perform actions on them. No items have "
 "been changed."
@@ -195,88 +213,96 @@ msgstr ""
 "اشیاء پر کاروائی سرانجام دینے کے لئے ان کا منتخب ھونا ضروری ھے۔ کوئی شے "
 "تبدیل نھیں کی گئی۔"
 
-#: options.py:846
+#: options.py:970
 msgid "No action selected."
 msgstr "کوئی کاروائی منتخب نھیں کی گئی۔"
 
-#: options.py:927
+#: options.py:1050
 #, python-format
 msgid "Add %s"
 msgstr "%s کا اضافہ کریں"
 
-#: options.py:953 options.py:1194
+#: options.py:1074 options.py:1319
 #, python-format
 msgid "%(name)s object with primary key %(key)r does not exist."
 msgstr "%(name)s شے %(key)r پرائمری کلید کے ساتھ موجود نھیں ھے۔"
 
-#: options.py:1018
+#: options.py:1140
 #, python-format
 msgid "Change %s"
 msgstr "%s تبدیل کریں"
 
-#: options.py:1065
+#: options.py:1190
 msgid "Database error"
 msgstr "ڈیٹا بیس کی خرابی"
 
-#: options.py:1127
+#: options.py:1253
 #, python-format
 msgid "%(count)s %(name)s was changed successfully."
 msgid_plural "%(count)s %(name)s were changed successfully."
 msgstr[0] "%(count)s %(name)s کامیابی سے تبدیل کیا گیا تھا۔"
 msgstr[1] "%(count)s %(name)s کامیابی سے تبدیل کیے گئے تھے۔"
 
-#: options.py:1154
+#: options.py:1280
 #, python-format
 msgid "%(total_count)s selected"
 msgid_plural "All %(total_count)s selected"
 msgstr[0] "%(total_count)s منتخب کیا گیا۔"
 msgstr[1] "تمام %(total_count)s منتخب کئے گئے۔"
 
-#: options.py:1159
+#: options.py:1285
 #, python-format
 msgid "0 of %(cnt)s selected"
 msgstr "%(cnt)s میں سے 0 منتخب کیا گیا۔"
 
-#: options.py:1210
+#: options.py:1335
 #, python-format
 msgid "The %(name)s \"%(obj)s\" was deleted successfully."
 msgstr "%(name)s \"%(obj)s\" کامیابی سے مٹایا گیا تھا۔"
 
-#: options.py:1255
+#: options.py:1382
 #, python-format
 msgid "Change history: %s"
 msgstr "%s کی تبدیلی کا تاریخ نامہ"
 
-#: sites.py:319 templates/admin/login.html:42
-#: templates/registration/password_reset_complete.html:14
-#: views/decorators.py:26
+#: sites.py:322 tests.py:57 templates/admin/login.html:48
+#: templates/registration/password_reset_complete.html:19
+#: views/decorators.py:24
 msgid "Log in"
 msgstr "اندر جائیں"
 
-#: sites.py:375
+#: sites.py:388
 msgid "Site administration"
 msgstr "سائٹ کی انتظامیہ"
 
-#: sites.py:419
+#: sites.py:440
 #, python-format
 msgid "%s administration"
 msgstr "%s کی انتظامیہ"
 
-#: widgets.py:75
+#: widgets.py:90
 msgid "Date:"
 msgstr "تاریخ:"
 
-#: widgets.py:75
+#: widgets.py:91
 msgid "Time:"
 msgstr "وقت:"
 
-#: widgets.py:140
+#: widgets.py:165
 msgid "Lookup"
 msgstr "ڈھونڈیں"
 
-#: widgets.py:246
+#: widgets.py:271
 msgid "Add Another"
 msgstr "اور اضافہ کریں"
+
+#: widgets.py:316
+msgid "Currently:"
+msgstr ""
+
+#: widgets.py:317
+msgid "Change:"
+msgstr ""
 
 #: templates/admin/404.html:4 templates/admin/404.html.py:8
 msgid "Page not found"
@@ -286,42 +312,40 @@ msgstr "صفحہ نھیں ملا"
 msgid "We're sorry, but the requested page could not be found."
 msgstr "ھم معذرت خواہ ھیں، مطلوبہ صفحہ نھیں مل سکا۔"
 
-#: templates/admin/500.html:4 templates/admin/app_index.html:8
-#: templates/admin/base.html:55 templates/admin/change_form.html:19
-#: templates/admin/change_list.html:42
-#: templates/admin/delete_confirmation.html:6
-#: templates/admin/delete_selected_confirmation.html:6
-#: templates/admin/invalid_setup.html:4 templates/admin/object_history.html:6
-#: templates/admin/auth/user/change_password.html:12
+#: templates/admin/500.html:6 templates/admin/app_index.html:7
+#: templates/admin/base.html:47 templates/admin/change_form.html:19
+#: templates/admin/change_list.html:41
+#: templates/admin/delete_confirmation.html:7
+#: templates/admin/delete_selected_confirmation.html:7
+#: templates/admin/invalid_setup.html:6 templates/admin/object_history.html:7
+#: templates/admin/auth/user/change_password.html:13
 #: templates/registration/logged_out.html:4
-#: templates/registration/password_change_done.html:5
-#: templates/registration/password_change_form.html:6
-#: templates/registration/password_reset_complete.html:4
-#: templates/registration/password_reset_confirm.html:4
-#: templates/registration/password_reset_done.html:4
-#: templates/registration/password_reset_form.html:4
+#: templates/registration/password_change_done.html:6
+#: templates/registration/password_change_form.html:7
+#: templates/registration/password_reset_complete.html:6
+#: templates/registration/password_reset_confirm.html:6
+#: templates/registration/password_reset_done.html:6
+#: templates/registration/password_reset_form.html:6
 msgid "Home"
 msgstr "گھر"
 
-#: templates/admin/500.html:4
+#: templates/admin/500.html:7
 msgid "Server error"
 msgstr "سرور کی خرابی"
 
-#: templates/admin/500.html:6
+#: templates/admin/500.html:11
 msgid "Server error (500)"
 msgstr "سرور کی خرابی (500)"
 
-#: templates/admin/500.html:9
+#: templates/admin/500.html:14
 msgid "Server Error <em>(500)</em>"
 msgstr "سرور کی خرابی <em>(500)</em>"
 
-#: templates/admin/500.html:10
+#: templates/admin/500.html:15
 msgid ""
-"There's been an error. It's been reported to the site administrators via e-"
-"mail and should be fixed shortly. Thanks for your patience."
+"There's been an error. It's been reported to the site administrators via "
+"email and should be fixed shortly. Thanks for your patience."
 msgstr ""
-"کوئی خرابی ھے۔ اس کے بارے میں سائٹ کے منتظم کو بذریعہ برقی خط آگاہ کر دیا "
-"جائے گا۔ اور عنقریب یہ درست ھو جائے گی۔ آپ کے تعاون کا شکریہ۔"
 
 #: templates/admin/actions.html:4
 msgid "Run the selected action"
@@ -344,7 +368,7 @@ msgstr "تمام %(total_count)s %(module_name)s منتخب کریں"
 msgid "Clear selection"
 msgstr "انتخاب صاف کریں"
 
-#: templates/admin/app_index.html:10 templates/admin/index.html:19
+#: templates/admin/app_index.html:10 templates/admin/index.html:21
 #, python-format
 msgid "%(name)s"
 msgstr "%(name)s"
@@ -354,22 +378,22 @@ msgid "Welcome,"
 msgstr "خوش آمدید،"
 
 #: templates/admin/base.html:33
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_form.html:5
+#: templates/registration/password_change_done.html:3
+#: templates/registration/password_change_form.html:4
 msgid "Documentation"
 msgstr "طریق استعمال"
 
-#: templates/admin/base.html:41
-#: templates/admin/auth/user/change_password.html:16
-#: templates/admin/auth/user/change_password.html:49
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_form.html:5
+#: templates/admin/base.html:36
+#: templates/admin/auth/user/change_password.html:17
+#: templates/admin/auth/user/change_password.html:51
+#: templates/registration/password_change_done.html:3
+#: templates/registration/password_change_form.html:4
 msgid "Change password"
 msgstr "لفظ اجازت تبدیل کریں"
 
-#: templates/admin/base.html:48
-#: templates/registration/password_change_done.html:4
-#: templates/registration/password_change_form.html:5
+#: templates/admin/base.html:38
+#: templates/registration/password_change_done.html:3
+#: templates/registration/password_change_form.html:4
 msgid "Log out"
 msgstr "باہر جائیں"
 
@@ -381,44 +405,57 @@ msgstr "منتظم برائے جینگو سائٹ"
 msgid "Django administration"
 msgstr "انتظامیہ برائے جینگو سائٹ"
 
-#: templates/admin/change_form.html:22 templates/admin/index.html:29
+#: templates/admin/change_form.html:22 templates/admin/index.html:33
 msgid "Add"
 msgstr "اضافہ"
 
-#: templates/admin/change_form.html:31 templates/admin/object_history.html:10
+#: templates/admin/change_form.html:32 templates/admin/object_history.html:11
 msgid "History"
 msgstr "تاریخ نامہ"
 
-#: templates/admin/change_form.html:32
+#: templates/admin/change_form.html:33
 #: templates/admin/edit_inline/stacked.html:9
-#: templates/admin/edit_inline/tabular.html:28
+#: templates/admin/edit_inline/tabular.html:30
 msgid "View on site"
 msgstr "سائٹ پر مشاھدہ کریں"
 
-#: templates/admin/change_form.html:43 templates/admin/change_list.html:73
+#: templates/admin/change_form.html:44 templates/admin/change_list.html:67
 #: templates/admin/login.html:17
-#: templates/admin/auth/user/change_password.html:25
-#: templates/registration/password_change_form.html:16
+#: templates/admin/auth/user/change_password.html:27
+#: templates/registration/password_change_form.html:20
 msgid "Please correct the error below."
 msgid_plural "Please correct the errors below."
 msgstr[0] "براہ کرم نیچے غلطی درست کریں۔"
 msgstr[1] "براہ کرم نیچے غلطیاں درست کریں۔"
 
-#: templates/admin/change_list.html:64
+#: templates/admin/change_list.html:58
 #, python-format
 msgid "Add %(name)s"
 msgstr "%(name)s کا اضافہ کریں"
 
-#: templates/admin/change_list.html:84
+#: templates/admin/change_list.html:78
 msgid "Filter"
 msgstr "چھانٹیں"
 
-#: templates/admin/delete_confirmation.html:10
+#: templates/admin/change_list_results.html:17
+msgid "Remove from sorting"
+msgstr ""
+
+#: templates/admin/change_list_results.html:18
+#, python-format
+msgid "Sorting priority: %(priority_number)s"
+msgstr ""
+
+#: templates/admin/change_list_results.html:19
+msgid "Toggle sorting"
+msgstr ""
+
+#: templates/admin/delete_confirmation.html:11
 #: templates/admin/submit_line.html:4
 msgid "Delete"
 msgstr "مٹائیں"
 
-#: templates/admin/delete_confirmation.html:17
+#: templates/admin/delete_confirmation.html:18
 #, python-format
 msgid ""
 "Deleting the %(object_name)s '%(escaped_object)s' would result in deleting "
@@ -429,7 +466,7 @@ msgstr ""
 "سکتی ھیں، مگر آپ کے کھاتے کو اشیاء کی مندرجہ ذیل اقسام مٹانے کا حق حاصل نھیں "
 "ھے۔"
 
-#: templates/admin/delete_confirmation.html:25
+#: templates/admin/delete_confirmation.html:26
 #, python-format
 msgid ""
 "Deleting the %(object_name)s '%(escaped_object)s' would require deleting the "
@@ -438,7 +475,7 @@ msgstr ""
 "%(object_name)s '%(escaped_object)s' کو مٹانے کے لئے مندرجہ ذیل محفوظ متعلقہ "
 "اشیاء کو مٹانے کی ضرورت پڑ سکتی ھے۔"
 
-#: templates/admin/delete_confirmation.html:33
+#: templates/admin/delete_confirmation.html:34
 #, python-format
 msgid ""
 "Are you sure you want to delete the %(object_name)s \"%(escaped_object)s\"? "
@@ -447,16 +484,16 @@ msgstr ""
 "واقعی آپ %(object_name)s \"%(escaped_object)s\" کو مٹانا چاہتے ھیں۔ مندرجہ "
 "ذیل تمام متعلقہ اجزاء مٹ جائیں گے۔"
 
-#: templates/admin/delete_confirmation.html:38
-#: templates/admin/delete_selected_confirmation.html:43
+#: templates/admin/delete_confirmation.html:39
+#: templates/admin/delete_selected_confirmation.html:44
 msgid "Yes, I'm sure"
 msgstr "ھاں، مجھے یقین ھے"
 
-#: templates/admin/delete_selected_confirmation.html:9
+#: templates/admin/delete_selected_confirmation.html:10
 msgid "Delete multiple objects"
 msgstr "متعدد اشیاء مٹائیں"
 
-#: templates/admin/delete_selected_confirmation.html:16
+#: templates/admin/delete_selected_confirmation.html:17
 #, python-format
 msgid ""
 "Deleting the selected %(objects_name)s would result in deleting related "
@@ -466,7 +503,7 @@ msgstr ""
 "منتخب شدہ %(objects_name)s کو مٹانے کے نتیجے میں متعلقہ اشیاء مٹ سکتی ھیں، "
 "لیکن آپ کے کھاتے کو اشیاء کی مندرجہ ذیل اقسام کو مٹانے کا حق حاصل نھیں ھے۔"
 
-#: templates/admin/delete_selected_confirmation.html:24
+#: templates/admin/delete_selected_confirmation.html:25
 #, python-format
 msgid ""
 "Deleting the selected %(objects_name)s would require deleting the following "
@@ -475,7 +512,7 @@ msgstr ""
 "منتخب شدہ %(objects_name)s کو مٹانے کے لئے مندرجہ ذیل محفوظ شدہ اشیاء کو "
 "مٹانے کی ضرورت پڑ سکتی ھے۔"
 
-#: templates/admin/delete_selected_confirmation.html:32
+#: templates/admin/delete_selected_confirmation.html:33
 #, python-format
 msgid ""
 "Are you sure you want to delete the selected %(objects_name)s? All of the "
@@ -489,36 +526,36 @@ msgstr ""
 msgid " By %(filter_title)s "
 msgstr "از %(filter_title)s"
 
-#: templates/admin/index.html:18
+#: templates/admin/index.html:20
 #, python-format
-msgid "Models available in the %(name)s application."
-msgstr "%(name)s ایپلیکیشن میں دستیاب ماڈلز"
+msgid "Models in the %(name)s application"
+msgstr ""
 
-#: templates/admin/index.html:35
+#: templates/admin/index.html:39
 msgid "Change"
 msgstr "تدوین"
 
-#: templates/admin/index.html:45
+#: templates/admin/index.html:49
 msgid "You don't have permission to edit anything."
 msgstr "آپ کو کوئی چیز مدوّن کرنے کا حق نھیں ھے۔"
 
-#: templates/admin/index.html:53
+#: templates/admin/index.html:57
 msgid "Recent Actions"
 msgstr "حالیہ کاروائیاں"
 
-#: templates/admin/index.html:54
+#: templates/admin/index.html:58
 msgid "My Actions"
 msgstr "میری کاروائیاں"
 
-#: templates/admin/index.html:58
+#: templates/admin/index.html:62
 msgid "None available"
 msgstr "کچھ دستیاب نھیں"
 
-#: templates/admin/index.html:72
+#: templates/admin/index.html:76
 msgid "Unknown content"
 msgstr "نامعلوم مواد"
 
-#: templates/admin/invalid_setup.html:7
+#: templates/admin/invalid_setup.html:12
 msgid ""
 "Something's wrong with your database installation. Make sure the appropriate "
 "database tables have been created, and make sure the database is readable by "
@@ -528,27 +565,27 @@ msgstr ""
 "ٹیبل بنائے گئے تھے، اور یقین کر لیں کہ ڈیٹ بیس مناسب صارف کے پڑھے جانے کے "
 "قابل ھے۔"
 
-#: templates/admin/login.html:33
-msgid "Username:"
-msgstr "نام صاف:"
-
 #: templates/admin/login.html:37
 msgid "Password:"
 msgstr "لفظ اجازت:"
 
-#: templates/admin/object_history.html:22
+#: templates/admin/login.html:44
+msgid "Forgotten your password or username?"
+msgstr ""
+
+#: templates/admin/object_history.html:23
 msgid "Date/time"
 msgstr "تاریخ/وقت"
 
-#: templates/admin/object_history.html:23
+#: templates/admin/object_history.html:24
 msgid "User"
 msgstr "صارف"
 
-#: templates/admin/object_history.html:24
+#: templates/admin/object_history.html:25
 msgid "Action"
 msgstr "کاروائی"
 
-#: templates/admin/object_history.html:38
+#: templates/admin/object_history.html:39
 msgid ""
 "This object doesn't have a change history. It probably wasn't added via this "
 "admin site."
@@ -564,18 +601,18 @@ msgstr "تمام دکھائیں"
 msgid "Save"
 msgstr "محفوظ کریں"
 
-#: templates/admin/search_form.html:8
+#: templates/admin/search_form.html:7
 msgid "Search"
 msgstr "تلاش کریں"
 
-#: templates/admin/search_form.html:10
+#: templates/admin/search_form.html:9
 #, python-format
 msgid "%(counter)s result"
 msgid_plural "%(counter)s results"
 msgstr[0] "%(counter)s نتیجہ"
 msgstr[1] "%(counter)s نتائج"
 
-#: templates/admin/search_form.html:10
+#: templates/admin/search_form.html:9
 #, python-format
 msgid "%(full_result_count)s total"
 msgstr "کل %(full_result_count)s"
@@ -604,36 +641,36 @@ msgstr ""
 msgid "Enter a username and password."
 msgstr "نام صارف اور لفظ اجازت درج کریں۔"
 
-#: templates/admin/auth/user/change_password.html:29
+#: templates/admin/auth/user/change_password.html:31
 #, python-format
 msgid "Enter a new password for the user <strong>%(username)s</strong>."
 msgstr "صارف <strong>%(username)s</strong> کے لئے نیا لفظ اجازت درج کریں۔"
 
-#: templates/admin/auth/user/change_password.html:36
+#: templates/admin/auth/user/change_password.html:38
 msgid "Password"
 msgstr "لفظ اجازت"
 
-#: templates/admin/auth/user/change_password.html:42
-#: templates/registration/password_change_form.html:38
+#: templates/admin/auth/user/change_password.html:44
+#: templates/registration/password_change_form.html:42
 msgid "Password (again)"
 msgstr "لفظ اجازت (دوبارہ)"
 
-#: templates/admin/auth/user/change_password.html:43
+#: templates/admin/auth/user/change_password.html:45
 msgid "Enter the same password as above, for verification."
 msgstr "توثیق کے لئے ویسا ہی لفظ اجازت درج کریں جیسا اوپر کیا۔"
 
-#: templates/admin/edit_inline/stacked.html:67
-#: templates/admin/edit_inline/tabular.html:113
+#: templates/admin/edit_inline/stacked.html:26
+#: templates/admin/edit_inline/tabular.html:76
+msgid "Remove"
+msgstr "خارج کریں"
+
+#: templates/admin/edit_inline/stacked.html:27
+#: templates/admin/edit_inline/tabular.html:75
 #, python-format
 msgid "Add another %(verbose_name)s"
 msgstr "دوسرا %(verbose_name)s درج کریں"
 
-#: templates/admin/edit_inline/stacked.html:70
-#: templates/admin/edit_inline/tabular.html:116
-msgid "Remove"
-msgstr "خارج کریں"
-
-#: templates/admin/edit_inline/tabular.html:15
+#: templates/admin/edit_inline/tabular.html:17
 msgid "Delete?"
 msgstr "مٹاؤں؟"
 
@@ -645,23 +682,23 @@ msgstr "ویب سائٹ پر آج کچھ معیاری وقت خرچ کرنے �
 msgid "Log in again"
 msgstr "دوبارہ اندر جائیں"
 
-#: templates/registration/password_change_done.html:5
-#: templates/registration/password_change_form.html:6
+#: templates/registration/password_change_done.html:7
 #: templates/registration/password_change_form.html:8
-#: templates/registration/password_change_form.html:20
+#: templates/registration/password_change_form.html:12
+#: templates/registration/password_change_form.html:24
 msgid "Password change"
 msgstr "لفظ اجازت کی تبدیلی"
 
-#: templates/registration/password_change_done.html:7
 #: templates/registration/password_change_done.html:11
+#: templates/registration/password_change_done.html:15
 msgid "Password change successful"
 msgstr "لفظ اجازت کی تبدیلی کامیابی سے ھوگئی"
 
-#: templates/registration/password_change_done.html:13
+#: templates/registration/password_change_done.html:17
 msgid "Your password was changed."
 msgstr "آپ کا لفظ اجازت تبدیل کر دیا گیا تھا۔"
 
-#: templates/registration/password_change_form.html:22
+#: templates/registration/password_change_form.html:26
 msgid ""
 "Please enter your old password, for security's sake, and then enter your new "
 "password twice so we can verify you typed it in correctly."
@@ -669,48 +706,48 @@ msgstr ""
 "براہ کرم سیکیورٹی کی خاطر اپنا پرانا لفظ اجازت درج کریں اور پھر اپنا نیا لفظ "
 "اجازت دو مرتبہ درج کریں تاکہ ھم توثیق کر سکیں کہ آپ نے اسے درست درج کیا ھے۔"
 
-#: templates/registration/password_change_form.html:28
+#: templates/registration/password_change_form.html:32
 msgid "Old password"
 msgstr "پرانا لفظ اجازت"
 
-#: templates/registration/password_change_form.html:33
+#: templates/registration/password_change_form.html:37
 msgid "New password"
 msgstr "نیا لفظ اجازت"
 
-#: templates/registration/password_change_form.html:44
-#: templates/registration/password_reset_confirm.html:21
+#: templates/registration/password_change_form.html:48
+#: templates/registration/password_reset_confirm.html:26
 msgid "Change my password"
 msgstr "میرا لفظ تبدیل کریں"
 
-#: templates/registration/password_reset_complete.html:4
-#: templates/registration/password_reset_confirm.html:6
-#: templates/registration/password_reset_done.html:4
-#: templates/registration/password_reset_form.html:4
-#: templates/registration/password_reset_form.html:6
-#: templates/registration/password_reset_form.html:10
+#: templates/registration/password_reset_complete.html:7
+#: templates/registration/password_reset_confirm.html:11
+#: templates/registration/password_reset_done.html:7
+#: templates/registration/password_reset_form.html:7
+#: templates/registration/password_reset_form.html:11
+#: templates/registration/password_reset_form.html:15
 msgid "Password reset"
 msgstr "لفظ اجازت کی دوبارہ ترتیب"
 
-#: templates/registration/password_reset_complete.html:6
-#: templates/registration/password_reset_complete.html:10
+#: templates/registration/password_reset_complete.html:11
+#: templates/registration/password_reset_complete.html:15
 msgid "Password reset complete"
 msgstr "لفظ اجازت کی دوبارہ ترتیب مکمل ھو گئی"
 
-#: templates/registration/password_reset_complete.html:12
+#: templates/registration/password_reset_complete.html:17
 msgid "Your password has been set.  You may go ahead and log in now."
 msgstr ""
 "آپ کا لفظ اجازت مرتب کر دیا گیا ھے۔ آپ کو آگے بڑھنے اور اندر جانے کی اجازت "
 "ھے۔"
 
-#: templates/registration/password_reset_confirm.html:4
+#: templates/registration/password_reset_confirm.html:7
 msgid "Password reset confirmation"
 msgstr "لفظ اجازت دوبارہ مرتب کرنے کی توثیق"
 
-#: templates/registration/password_reset_confirm.html:12
+#: templates/registration/password_reset_confirm.html:17
 msgid "Enter new password"
 msgstr "نیا لفظ اجازت درج کریں"
 
-#: templates/registration/password_reset_confirm.html:14
+#: templates/registration/password_reset_confirm.html:19
 msgid ""
 "Please enter your new password twice so we can verify you typed it in "
 "correctly."
@@ -718,19 +755,19 @@ msgstr ""
 "براہ مھربانی اپنا نیا لفظ اجازت دو مرتبہ درج کریں تاکہ تاکہ ھم تصدیق کر سکیں "
 "کہ تم نے اسے درست درج کیا ھے۔"
 
-#: templates/registration/password_reset_confirm.html:18
+#: templates/registration/password_reset_confirm.html:23
 msgid "New password:"
 msgstr "نیا لفظ اجازت:"
 
-#: templates/registration/password_reset_confirm.html:20
+#: templates/registration/password_reset_confirm.html:25
 msgid "Confirm password:"
 msgstr "لفظ اجازت کی توثیق:"
 
-#: templates/registration/password_reset_confirm.html:26
+#: templates/registration/password_reset_confirm.html:31
 msgid "Password reset unsuccessful"
 msgstr "لفظ اجازت کی دوبارہ ترتیب ناکام ھو گئی۔"
 
-#: templates/registration/password_reset_confirm.html:28
+#: templates/registration/password_reset_confirm.html:33
 msgid ""
 "The password reset link was invalid, possibly because it has already been "
 "used.  Please request a new password reset."
@@ -738,23 +775,21 @@ msgstr ""
 "لفظ اجازت دوبارہ مرتب کرنے کا رابطہ (لنک) غلط تھا، غالباً یہ پہلے ھی استعمال "
 "کیا چکا تھا۔ براہ مھربانی نیا لفظ اجازت مرتب کرنے کی درخواست کریں۔"
 
-#: templates/registration/password_reset_done.html:6
-#: templates/registration/password_reset_done.html:10
+#: templates/registration/password_reset_done.html:11
+#: templates/registration/password_reset_done.html:15
 msgid "Password reset successful"
 msgstr "لفظ اجازت کی دوبارہ ترتیب کامیاب ھو گئی۔"
 
-#: templates/registration/password_reset_done.html:12
+#: templates/registration/password_reset_done.html:17
 msgid ""
-"We've e-mailed you instructions for setting your password to the e-mail "
+"We've emailed you instructions for setting your password to the email "
 "address you submitted. You should be receiving it shortly."
 msgstr ""
-"ھم نے اس پتے پر جو آپ نے پیش کیا ھے لفظ اجازت مرتب کرنے کی ھدایات بذریعہ "
-"برقی خط بھیج دی ھیں۔ آپ کو عنقریب موصول ھو جائیں گی۔"
 
 #: templates/registration/password_reset_email.html:2
 #, python-format
 msgid ""
-"You're receiving this e-mail because you requested a password reset for your "
+"You're receiving this email because you requested a password reset for your "
 "user account at %(site_name)s."
 msgstr ""
 
@@ -775,36 +810,34 @@ msgstr "ھماری سائٹ استعمال کرنے کے لئے شکریہ"
 msgid "The %(site_name)s team"
 msgstr "%(site_name)s کی ٹیم"
 
-#: templates/registration/password_reset_form.html:12
+#: templates/registration/password_reset_form.html:17
 msgid ""
-"Forgotten your password? Enter your e-mail address below, and we'll e-mail "
+"Forgotten your password? Enter your email address below, and we'll email "
 "instructions for setting a new one."
 msgstr ""
-"اپنا لفظ اجازت بھول گئے ھیں؟ نیچے اپنا برقی خط کا پتہ درج کریں ھم نیا لفظ "
-"اجازت مرتب کرنے کی ھدایات بذریعہ برقی خط بھیج دیں گے۔"
 
-#: templates/registration/password_reset_form.html:16
-msgid "E-mail address:"
-msgstr "برقی خط کا پتہ:"
+#: templates/registration/password_reset_form.html:21
+msgid "Email address:"
+msgstr ""
 
-#: templates/registration/password_reset_form.html:16
+#: templates/registration/password_reset_form.html:21
 msgid "Reset my password"
 msgstr "میرا لفظ اجازت دوبارہ مرتب کریں"
 
-#: templatetags/admin_list.py:290
+#: templatetags/admin_list.py:344
 msgid "All dates"
 msgstr "تمام تاریخیں"
 
-#: views/main.py:27
+#: views/main.py:33
 msgid "(None)"
-msgstr ""
+msgstr "(None)"
 
-#: views/main.py:66
+#: views/main.py:76
 #, python-format
 msgid "Select %s"
 msgstr "%s منتخب کریں"
 
-#: views/main.py:66
+#: views/main.py:78
 #, python-format
 msgid "Select %s to change"
 msgstr "تبدیل کرنے کے لئے %s منتخب کریں"

@@ -31,9 +31,9 @@
 import os, sys, time, signal
 
 try:
-    import thread
+    from django.utils.six.moves import _thread as thread
 except ImportError:
-    import dummy_thread as thread
+    from django.utils.six.moves import _dummy_thread as thread
 
 # This import does nothing, but it's necessary to avoid some race conditions
 # in the threading module. See http://code.djangoproject.com/ticket/2330 .
@@ -54,9 +54,12 @@ _win = (sys.platform == "win32")
 
 def code_changed():
     global _mtimes, _win
-    for filename in filter(lambda v: v, map(lambda m: getattr(m, "__file__", None), sys.modules.values())):
+    filenames = [getattr(m, "__file__", None) for m in sys.modules.values()]
+    for filename in filter(None, filenames):
         if filename.endswith(".pyc") or filename.endswith(".pyo"):
             filename = filename[:-1]
+        if filename.endswith("$py.class"):
+            filename = filename[:-9] + ".py"
         if not os.path.exists(filename):
             continue # File might be in an egg, so it can't be reloaded.
         stat = os.stat(filename)
@@ -113,7 +116,11 @@ def python_reloader(main_func, args, kwargs):
             pass
     else:
         try:
-            sys.exit(restart_with_reloader())
+            exit_code = restart_with_reloader()
+            if exit_code < 0:
+                os.kill(os.getpid(), -exit_code)
+            else:
+                sys.exit(exit_code)
         except KeyboardInterrupt:
             pass
 
