@@ -1,0 +1,4 @@
+#Running Git on Windows changes the end of line values of text files to windows CRLF
+#This isn't compatible with Vagrant running Ubuntu 12.04
+#Set the end of line file type to work in Vagrant regardless of downloa
+* text eol=lf
