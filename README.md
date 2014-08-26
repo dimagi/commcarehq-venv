@@ -52,6 +52,8 @@ Building the virtualenv
 
 Run these steps to set up your environment
 
+Note: In Windows, you have to run these commands as administrator (right click your command prompt, or bash program, and click Run as administrator). There is a known issue with creating symlinks to shared Windows environments in virtualbox which is resolved if you run these commands as a windows administrator.
+
 ```bash
 cd /path/to/hq_env-vagrant
 vagrant up
