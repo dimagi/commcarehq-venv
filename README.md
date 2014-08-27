@@ -14,19 +14,13 @@ the exact setup. Important to note, you do _not_ need an Ubuntu box yourself, an
 
 To do this first install [Vagrant](http://docs.vagrantup.com/v2/installation/). (This requires VirtualBox >= 4.2.16.)
 
-The way Vagrant works is that you give your vagrant box a home on your machine, say `/path/to/hq_env-vagrant`. Then anything you put under that directory will be available once you log into that box under `/vagrant/`. We're going to add commcarehq-env and commcare-hq under `/path/to/hq_env-vagrant`, so that they show up in the box under `/vagrant/commcarehq-env` and `/vagrant/commcare-hq` respectively. We can set that all up with
+The way Vagrant works is that you give your vagrant box a home on your machine, say `/path/to/hq_env-vagrant`. Then anything you put under that directory will be available once you log into that box under `/vagrant/`. We're going to add commcarehq-env and commcare-hq under `/path/to/hq_env-vagrant`, so that they show up in the box under `/vagrant/commcarehq-env` and `/vagrant/commcare-hq` respectively.
 
-```bash
-mkdir -p /path/to/hq_env-vagrant
-cd /path/to/hq_env-vagrant
-git clone git@github.com:dimagi/commcarehq-venv.git
-git clone git@github.com:dimagi/commcare-hq.git
-cd commcare-hq
-git submodule update --init
-cd ..
-```
+Host Machine:
+The first step is to create the path to hq_env-vagrant on the host machine.
+```mkdir -p /path/to/hq_env-vagrant```
 
-We can add the prebuilt box referenced at http://www.vagrantbox.es/ with the following command,
+We can now add the prebuilt box referenced at http://www.vagrantbox.es/ with the following command,
 initialize the directory, boot up the machine, and ssh into it with:
 
 ```bash
@@ -35,6 +29,18 @@ vagrant box add ubuntu-12.04-64 http://cloud-images.ubuntu.com/vagrant/precise/c
 vagrant init ubuntu-12.04-64
 vagrant up
 vagrant ssh
+```
+
+Vagrant Guest:
+Now that we're in the vagrant guest, we need to switch to the shared directory, install git, clone the github repos and initiate the submodule downloads.
+```bash
+cd /vagrant
+sudo apt-get install git
+git clone git@github.com:dimagi/commcarehq-venv.git
+git clone git@github.com:dimagi/commcare-hq.git
+cd commcare-hq
+git submodule update --init
+cd ..
 ```
 
 Our travis build expects a virtualenv at `/home/travis` so we'll need to symlink it to that location for all the refs to work out.
@@ -50,17 +56,23 @@ You can log out of your vagrant box with ^D or logout as you would any ssh sessi
 Building the virtualenv
 -----------------------
 
-Run these steps to set up your environment
+Run these steps to set up your environment.
+Note: Windows requires that these commands run as administrator to allow NPM to create symlinks. In Windows, right click your bash or command program and left click "Run as administrator..." before executing the following commands.
 
+Host Machine:
 ```bash
 cd /path/to/hq_env-vagrant
 vagrant up
 vagrant ssh
+```
+
+Vagrant Guest:
+```bash
 vagrant@precise64 $ source /home/travis/virtualenv/bin/activate
 vagrant@precise64 $ cd /vagrant/commcare-hq
 ```
 
-The you should probably rerun this everytime, but you definitely need it the first time
+Then you should probably rerun this everytime, but you definitely need it the first time
 
 ```bash
 vagrant@precise64 $ bash -ex install.sh
