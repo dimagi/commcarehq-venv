@@ -1,0 +1,12 @@
+setup.cfg
+setup.py
+KISSmetrics/__init__.py
+KISSmetrics/client.py
+KISSmetrics/client_compat.py
+KISSmetrics/query_string.py
+KISSmetrics/request.py
+py_KISSmetrics.egg-info/PKG-INFO
+py_KISSmetrics.egg-info/SOURCES.txt
+py_KISSmetrics.egg-info/dependency_links.txt
+py_KISSmetrics.egg-info/requires.txt
+py_KISSmetrics.egg-info/top_level.txt

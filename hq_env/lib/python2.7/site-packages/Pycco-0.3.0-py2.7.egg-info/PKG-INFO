@@ -1,0 +1,12 @@
+Metadata-Version: 1.0
+Name: Pycco
+Version: 0.3.0
+Summary: A Python port of Docco: the original quick-and-dirty,
+        hundred-line-long, literate-programming-style documentation generator.
+        
+Home-page: http://fitzgen.github.com/pycco
+Author: Nick Fitzgerald
+Author-email: fitzgen@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

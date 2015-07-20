@@ -6,8 +6,6 @@ items, though within Fabric itself only ``Process`` objects are used/supported.
 """
 
 from __future__ import with_statement
-from pprint import pprint
-from Crypto import Random 
 import time
 import Queue
 
@@ -63,7 +61,7 @@ class JobQueue(object):
         Just going to use number of jobs as the JobQueue length.
         """
         return self._num_of_jobs
-    
+
     def close(self):
         """
         A sanity check, so that the need to care about new jobs being added in
@@ -123,6 +121,11 @@ class JobQueue(object):
                 job.start()
             self._running.append(job)
 
+        # Prep return value so we can start filling it during main loop
+        results = {}
+        for job in self._queued:
+            results[job.name] = dict.fromkeys(('exit_code', 'results'))
+
         if not self._closed:
             raise Exception("Need to close() before starting.")
 
@@ -132,6 +135,7 @@ class JobQueue(object):
         while len(self._running) < self._max:
             _advance_the_queue()
 
+        # Main loop!
         while not self._finished:
             while len(self._running) < self._max and self._queued:
                 _advance_the_queue()
@@ -156,29 +160,44 @@ class JobQueue(object):
                     job.join()
 
                 self._finished = True
+
+            # Each loop pass, try pulling results off the queue to keep its
+            # size down. At this point, we don't actually care if any results
+            # have arrived yet; they will be picked up after the main loop.
+            self._fill_results(results)
+
             time.sleep(ssh.io_sleep)
 
-        results = {}
+        # Consume anything left in the results queue. Note that there is no
+        # need to block here, as the main loop ensures that all workers will
+        # already have finished.
+        self._fill_results(results)
+
+        # Attach exit codes now that we're all done & have joined all jobs
         for job in self._completed:
-            results[job.name] = {
-                'exit_code': job.exitcode,
-            }
+            results[job.name]['exit_code'] = job.exitcode
+
+        return results
+
+    def _fill_results(self, results):
+        """
+        Attempt to pull data off self._comms_queue and add to 'results' dict.
+        If no data is available (i.e. the queue is empty), bail immediately.
+        """
         while True:
             try:
-                datum = self._comms_queue.get(timeout=1)
+                datum = self._comms_queue.get_nowait()
                 results[datum['name']]['results'] = datum['result']
             except Queue.Empty:
                 break
 
-        return results
 
-
-#### Sample 
+#### Sample
 
 def try_using(parallel_type):
     """
     This will run the queue through it's paces, and show a simple way of using
-    the job queue. 
+    the job queue.
     """
 
     def print_number(number):
@@ -193,7 +212,6 @@ def try_using(parallel_type):
     elif parallel_type == "threading":
         from threading import Thread as Bucket
 
-
     # Make a job_queue with a bubble of len 5, and have it print verbosely
     jobs = JobQueue(5)
     jobs._debug = True
@@ -201,9 +219,9 @@ def try_using(parallel_type):
     # Add 20 procs onto the stack
     for x in range(20):
         jobs.append(Bucket(
-            target = print_number,
-            args = [x],
-            kwargs = {},
+            target=print_number,
+            args=[x],
+            kwargs={},
             ))
 
     # Close up the queue and then start it's execution

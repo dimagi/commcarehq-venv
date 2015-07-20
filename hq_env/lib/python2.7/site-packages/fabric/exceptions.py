@@ -1,8 +1,10 @@
 """
 Custom Fabric exception classes.
 
-Most are simply distinct Exception subclasses for purposes of message-passing (though typically still in actual error situations.)
+Most are simply distinct Exception subclasses for purposes of message-passing
+(though typically still in actual error situations.)
 """
+
 
 class NetworkError(Exception):
     # Must allow for calling with zero args/kwargs, since pickle is apparently
@@ -19,3 +21,7 @@ class NetworkError(Exception):
         return "%s(%s) => %r" % (
             self.__class__.__name__, self.message, self.wrapped
         )
+
+
+class CommandTimeout(Exception):
+    pass
