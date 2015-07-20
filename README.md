@@ -125,6 +125,8 @@ vagrant@precise64 $ source /home/travis/virtualenv/bin/activate
 vagrant@precise64 $ cd /vagrant/commcare-hq
 ```
 
+## Update the virtualenv
+
 The following commands will actually update the virtualenv
 
 ```bash
@@ -133,7 +135,18 @@ vagrant@precise64 $ pip install -r requirements/requirements.txt -r requirements
 vagrant@precise64 $ pip install coveralls coverage unittest2 mock
 ```
 
+## Commit changes
+
 Finally, verify everything looks good, and commit and push the changes!
+
+Wherever you're git repo is run the following:
+
+```bash
+git checkout -b update-env
+git add -A
+git commit -m "updating the virtualenv"
+git push origin update-env
+```
 
 # Vagrant tips
 
