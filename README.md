@@ -148,6 +148,12 @@ git commit -m "updating the virtualenv"
 git push origin update-env
 ```
 
+## Testing
+
+To ensure that things went correctly, you should have travis run a build on the new env prior to merging.
+
+The easiest way to do this is to PR a change to master with the `.travis.yml` file updated to point at a specific branch of the virtualenv. [Here is an example PR](https://github.com/dimagi/commcare-hq/pull/7540/files) you can refer to for doing this.
+
 # Vagrant tips
 
 ## Copying files
