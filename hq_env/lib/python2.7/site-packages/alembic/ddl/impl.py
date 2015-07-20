@@ -163,7 +163,7 @@ class DefaultImpl(with_metaclass(ImplMeta)):
     def drop_index(self, index):
         self._exec(schema.DropIndex(index))
 
-    def bulk_insert(self, table, rows):
+    def bulk_insert(self, table, rows, multiinsert=True):
         if not isinstance(rows, list):
             raise TypeError("List expected")
         elif rows and not isinstance(rows[0], dict):
@@ -171,14 +171,21 @@ class DefaultImpl(with_metaclass(ImplMeta)):
         if self.as_sql:
             for row in rows:
                 self._exec(table.insert(inline=True).values(**dict(
-                    (k, _literal_bindparam(k, v, type_=table.c[k].type))
+                    (k,
+                        _literal_bindparam(k, v, type_=table.c[k].type)
+                        if not isinstance(v, _literal_bindparam) else v)
                     for k, v in row.items()
                 )))
         else:
             # work around http://www.sqlalchemy.org/trac/ticket/2461
             if not hasattr(table, '_autoincrement_column'):
                 table._autoincrement_column = None
-            self._exec(table.insert(inline=True), multiparams=rows)
+            if rows:
+                if multiinsert:
+                    self._exec(table.insert(inline=True), multiparams=rows)
+                else:
+                    for row in rows:
+                        self._exec(table.insert(inline=True).values(**row))
 
     def compare_type(self, inspector_column, metadata_column):
 
@@ -205,6 +212,11 @@ class DefaultImpl(with_metaclass(ImplMeta)):
                             rendered_metadata_default,
                             rendered_inspector_default):
         return rendered_inspector_default != rendered_metadata_default
+
+    def correct_for_autogen_constraints(self, conn_uniques, conn_indexes,
+                                        metadata_unique_constraints,
+                                        metadata_indexes):
+        pass
 
     def start_migrations(self):
         """A hook called when :meth:`.EnvironmentContext.run_migrations`

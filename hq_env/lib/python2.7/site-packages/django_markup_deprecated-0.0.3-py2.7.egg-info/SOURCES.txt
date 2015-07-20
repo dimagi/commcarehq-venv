@@ -1,0 +1,14 @@
+LICENSE
+MANIFEST.in
+README.rst
+setup.cfg
+setup.py
+django_markup_deprecated.egg-info/PKG-INFO
+django_markup_deprecated.egg-info/SOURCES.txt
+django_markup_deprecated.egg-info/dependency_links.txt
+django_markup_deprecated.egg-info/top_level.txt
+markup_deprecated/__init__.py
+markup_deprecated/models.py
+markup_deprecated/tests.py
+markup_deprecated/templatetags/__init__.py
+markup_deprecated/templatetags/markup.py

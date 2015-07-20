@@ -2,15 +2,12 @@ from __future__ import absolute_import
 
 import sys
 
-from nose import SkipTest
-
 from kombu import compression
 
-from .utils import TestCase
-from .utils import mask_modules
+from .case import Case, SkipTest, mask_modules
 
 
-class test_compression(TestCase):
+class test_compression(Case):
 
     def setUp(self):
         try:
@@ -37,7 +34,7 @@ class test_compression(TestCase):
             self.assertIn('application/x-bz2', encoders)
 
     def test_compress__decompress__zlib(self):
-        text = 'The Quick Brown Fox Jumps Over The Lazy Dog'
+        text = b'The Quick Brown Fox Jumps Over The Lazy Dog'
         c, ctype = compression.compress(text, 'zlib')
         self.assertNotEqual(text, c)
         d = compression.decompress(c, ctype)
@@ -46,7 +43,7 @@ class test_compression(TestCase):
     def test_compress__decompress__bzip2(self):
         if not self.has_bzip2:
             raise SkipTest('bzip2 not available')
-        text = 'The Brown Quick Fox Over The Lazy Dog Jumps'
+        text = b'The Brown Quick Fox Over The Lazy Dog Jumps'
         c, ctype = compression.compress(text, 'bzip2')
         self.assertNotEqual(text, c)
         d = compression.decompress(c, ctype)

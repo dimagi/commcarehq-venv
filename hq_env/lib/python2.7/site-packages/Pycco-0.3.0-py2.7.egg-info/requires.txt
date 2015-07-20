@@ -1,0 +1,7 @@
+markdown
+pygments
+pystache
+smartypants
+
+[monitoring]
+watchdog
