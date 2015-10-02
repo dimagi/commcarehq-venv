@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+from unittest import skipUnless
+
 from django.conf.global_settings import PASSWORD_HASHERS as default_hashers
 from django.contrib.auth.hashers import (is_password_usable, BasePasswordHasher,
     check_password, make_password, PBKDF2PasswordHasher, load_hashers, PBKDF2SHA1PasswordHasher,
     get_hasher, identify_hasher, UNUSABLE_PASSWORD_PREFIX, UNUSABLE_PASSWORD_SUFFIX_LENGTH)
 from django.test import SimpleTestCase
 from django.utils import six
-from django.utils import unittest
-from django.utils.unittest import skipUnless
 
 
 try:
@@ -47,7 +47,7 @@ class TestUtilsHashPass(SimpleTestCase):
     def test_pkbdf2(self):
         encoded = make_password('lètmein', 'seasalt', 'pbkdf2_sha256')
         self.assertEqual(encoded,
-            'pbkdf2_sha256$12000$seasalt$Ybw8zsFxqja97tY/o6G+Fy1ksY4U/Hw3DRrGED6Up4s=')
+            'pbkdf2_sha256$15000$seasalt$+qoFTwR4r71UCLMhmQUCou/LMu17XwQWfYIVd/xJ1RI=')
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(check_password('lètmein', encoded))
         self.assertFalse(check_password('lètmeinz', encoded))
@@ -211,14 +211,14 @@ class TestUtilsHashPass(SimpleTestCase):
         hasher = PBKDF2PasswordHasher()
         encoded = hasher.encode('lètmein', 'seasalt2')
         self.assertEqual(encoded,
-            'pbkdf2_sha256$12000$seasalt2$hlDLKsxgkgb1aeOppkM5atCYw5rPzAjCNQZ4NYyUROw=')
+            'pbkdf2_sha256$15000$seasalt2$uSQqI+91wgObKdP6L6S75LLzyxrZRWNcaujEZPA3/nA=')
         self.assertTrue(hasher.verify('lètmein', encoded))
 
     def test_low_level_pbkdf2_sha1(self):
         hasher = PBKDF2SHA1PasswordHasher()
         encoded = hasher.encode('lètmein', 'seasalt2')
         self.assertEqual(encoded,
-            'pbkdf2_sha1$12000$seasalt2$JeMRVfjjgtWw3/HzlnlfqBnQ6CA=')
+            'pbkdf2_sha1$15000$seasalt2$iYDXAPKgMsKMsarvA1MErD518Ug=')
         self.assertTrue(hasher.verify('lètmein', encoded))
 
     def test_upgrade(self):
@@ -226,6 +226,7 @@ class TestUtilsHashPass(SimpleTestCase):
         for algo in ('sha1', 'md5'):
             encoded = make_password('lètmein', hasher=algo)
             state = {'upgraded': False}
+
             def setter(password):
                 state['upgraded'] = True
             self.assertTrue(check_password('lètmein', encoded, setter))
@@ -234,6 +235,7 @@ class TestUtilsHashPass(SimpleTestCase):
     def test_no_upgrade(self):
         encoded = make_password('lètmein')
         state = {'upgraded': False}
+
         def setter():
             state['upgraded'] = True
         self.assertFalse(check_password('WRONG', encoded, setter))
@@ -244,6 +246,7 @@ class TestUtilsHashPass(SimpleTestCase):
         for algo in ('sha1', 'md5'):
             encoded = make_password('lètmein', hasher=algo)
             state = {'upgraded': False}
+
             def setter():
                 state['upgraded'] = True
             self.assertFalse(check_password('WRONG', encoded, setter))
@@ -263,6 +266,7 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertEqual(iterations, '1')
 
             state = {'upgraded': False}
+
             def setter(password):
                 state['upgraded'] = True
 

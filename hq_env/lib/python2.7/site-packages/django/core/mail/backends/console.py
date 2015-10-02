@@ -7,6 +7,7 @@ import threading
 from django.core.mail.backends.base import BaseEmailBackend
 from django.utils import six
 
+
 class EmailBackend(BaseEmailBackend):
     def __init__(self, *args, **kwargs):
         self.stream = kwargs.pop('stream', sys.stdout)
@@ -27,15 +28,17 @@ class EmailBackend(BaseEmailBackend):
         """Write all messages to the stream in a thread-safe way."""
         if not email_messages:
             return
+        msg_count = 0
         with self._lock:
             try:
                 stream_created = self.open()
                 for message in email_messages:
                     self.write_message(message)
                     self.stream.flush()  # flush after each message
+                    msg_count += 1
                 if stream_created:
                     self.close()
-            except:
+            except Exception:
                 if not self.fail_silently:
                     raise
-        return len(email_messages)
+        return msg_count

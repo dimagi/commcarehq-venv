@@ -1,0 +1,10 @@
+#!/home/travis/virtualenv/bin/python
+# EASY-INSTALL-ENTRY-SCRIPT: 'ghdiff==0.4','console_scripts','ghdiff'
+__requires__ = 'ghdiff==0.4'
+import sys
+from pkg_resources import load_entry_point
+
+if __name__ == '__main__':
+    sys.exit(
+        load_entry_point('ghdiff==0.4', 'console_scripts', 'ghdiff')()
+    )

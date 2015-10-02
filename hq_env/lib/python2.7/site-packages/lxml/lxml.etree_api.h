@@ -71,6 +71,8 @@ static xmlNode *(*__pyx_f_4lxml_5etree_previousElement)(xmlNode *) = 0;
 #define previousElement __pyx_f_4lxml_5etree_previousElement
 static void (*__pyx_f_4lxml_5etree_appendChild)(struct LxmlElement *, struct LxmlElement *) = 0;
 #define appendChild __pyx_f_4lxml_5etree_appendChild
+static int (*__pyx_f_4lxml_5etree_appendChildToElement)(struct LxmlElement *, struct LxmlElement *) = 0;
+#define appendChildToElement __pyx_f_4lxml_5etree_appendChildToElement
 static PyObject *(*__pyx_f_4lxml_5etree_pyunicode)(const xmlChar *) = 0;
 #define pyunicode __pyx_f_4lxml_5etree_pyunicode
 static PyObject *(*__pyx_f_4lxml_5etree_utf8)(PyObject *) = 0;
@@ -129,14 +131,14 @@ static int __Pyx_ImportFunction(PyObject *module, const char *funcname, void (**
     cobj = PyDict_GetItemString(d, funcname);
     if (!cobj) {
         PyErr_Format(PyExc_ImportError,
-            "%s does not export expected C function %s",
+            "%.200s does not export expected C function %.200s",
                 PyModule_GetName(module), funcname);
         goto bad;
     }
 #if PY_VERSION_HEX >= 0x02070000 && !(PY_MAJOR_VERSION==3 && PY_MINOR_VERSION==0)
     if (!PyCapsule_IsValid(cobj, sig)) {
         PyErr_Format(PyExc_TypeError,
-            "C function %s.%s has wrong signature (expected %s, got %s)",
+            "C function %.200s.%.200s has wrong signature (expected %.500s, got %.500s)",
              PyModule_GetName(module), funcname, sig, PyCapsule_GetName(cobj));
         goto bad;
     }
@@ -150,7 +152,7 @@ static int __Pyx_ImportFunction(PyObject *module, const char *funcname, void (**
     while (*s1 != '\0' && *s1 == *s2) { s1++; s2++; }
     if (*s1 != *s2) {
         PyErr_Format(PyExc_TypeError,
-            "C function %s.%s has wrong signature (expected %s, got %s)",
+            "C function %.200s.%.200s has wrong signature (expected %.500s, got %.500s)",
              PyModule_GetName(module), funcname, sig, desc);
         goto bad;
     }
@@ -206,6 +208,7 @@ static int import_lxml__etree(void) {
   if (__Pyx_ImportFunction(module, "nextElement", (void (**)(void))&__pyx_f_4lxml_5etree_nextElement, "xmlNode *(xmlNode *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "previousElement", (void (**)(void))&__pyx_f_4lxml_5etree_previousElement, "xmlNode *(xmlNode *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "appendChild", (void (**)(void))&__pyx_f_4lxml_5etree_appendChild, "void (struct LxmlElement *, struct LxmlElement *)") < 0) goto bad;
+  if (__Pyx_ImportFunction(module, "appendChildToElement", (void (**)(void))&__pyx_f_4lxml_5etree_appendChildToElement, "int (struct LxmlElement *, struct LxmlElement *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "pyunicode", (void (**)(void))&__pyx_f_4lxml_5etree_pyunicode, "PyObject *(const xmlChar *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "utf8", (void (**)(void))&__pyx_f_4lxml_5etree_utf8, "PyObject *(PyObject *)") < 0) goto bad;
   if (__Pyx_ImportFunction(module, "getNsTag", (void (**)(void))&__pyx_f_4lxml_5etree_getNsTag, "PyObject *(PyObject *)") < 0) goto bad;

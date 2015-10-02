@@ -10,10 +10,12 @@ from django.conf import settings
 from django.template import defaultfilters
 from django.utils.encoding import force_text
 from django.utils.formats import number_format
+from django.utils.safestring import mark_safe
 from django.utils.translation import pgettext, ungettext, ugettext as _
 from django.utils.timezone import is_aware, utc
 
 register = template.Library()
+
 
 @register.filter(is_safe=True)
 def ordinal(value):
@@ -26,9 +28,11 @@ def ordinal(value):
     except (TypeError, ValueError):
         return value
     suffixes = (_('th'), _('st'), _('nd'), _('rd'), _('th'), _('th'), _('th'), _('th'), _('th'), _('th'))
-    if value % 100 in (11, 12, 13): # special case
-        return "%d%s" % (value, suffixes[0])
-    return "%d%s" % (value, suffixes[value % 10])
+    if value % 100 in (11, 12, 13):  # special case
+        return mark_safe("%d%s" % (value, suffixes[0]))
+    # Mark value safe so i18n does not break with <sup> or <sub> see #19988
+    return mark_safe("%d%s" % (value, suffixes[value % 10]))
+
 
 @register.filter(is_safe=True)
 def intcomma(value, use_l10n=True):
@@ -99,6 +103,7 @@ intword_converters = (
     )),
 )
 
+
 @register.filter(is_safe=False)
 def intword(value):
     """
@@ -132,6 +137,7 @@ def intword(value):
             return _check_for_i18n(new_value, *converters(new_value))
     return value
 
+
 @register.filter(is_safe=True)
 def apnumber(value):
     """
@@ -144,7 +150,8 @@ def apnumber(value):
         return value
     if not 0 < value < 10:
         return value
-    return (_('one'), _('two'), _('three'), _('four'), _('five'), _('six'), _('seven'), _('eight'), _('nine'))[value-1]
+    return (_('one'), _('two'), _('three'), _('four'), _('five'), _('six'), _('seven'), _('eight'), _('nine'))[value - 1]
+
 
 # Perform the comparison in the default time zone when USE_TZ = True
 # (unless a specific time zone has been applied with the |timezone filter).
@@ -174,6 +181,7 @@ def naturalday(value, arg=None):
         return _('yesterday')
     return defaultfilters.date(value, arg)
 
+
 # This filter doesn't require expects_localtime=True because it deals properly
 # with both naive and aware datetimes. Therefore avoid the cost of conversion.
 @register.filter
@@ -182,7 +190,7 @@ def naturaltime(value):
     For date and time values shows how many seconds, minutes or hours ago
     compared to current timestamp returns representing string.
     """
-    if not isinstance(value, date): # datetime is a subclass of date
+    if not isinstance(value, date):  # datetime is a subclass of date
         return value
 
     now = datetime.now(utc if is_aware(value) else None)

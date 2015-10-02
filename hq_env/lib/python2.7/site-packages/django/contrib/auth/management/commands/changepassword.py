@@ -16,7 +16,7 @@ class Command(BaseCommand):
     )
     help = "Change a user's password for django.contrib.auth."
 
-    requires_model_validation = False
+    requires_system_checks = False
 
     def _get_pass(self, prompt="Password: "):
         p = getpass.getpass(prompt=force_str(prompt))
@@ -37,8 +37,8 @@ class Command(BaseCommand):
 
         try:
             u = UserModel._default_manager.using(options.get('database')).get(**{
-                    UserModel.USERNAME_FIELD: username
-                })
+                UserModel.USERNAME_FIELD: username
+            })
         except UserModel.DoesNotExist:
             raise CommandError("user '%s' does not exist" % username)
 

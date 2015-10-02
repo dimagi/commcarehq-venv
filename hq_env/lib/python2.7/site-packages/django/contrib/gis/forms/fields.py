@@ -1,14 +1,11 @@
 from __future__ import unicode_literals
 
-import warnings
-
 from django import forms
-from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
 # While this couples the geographic forms to the GEOS library,
 # it decouples from database (by not importing SpatialBackend).
-from django.contrib.gis.geos import GEOSException, GEOSGeometry, fromstr
+from django.contrib.gis.geos import GEOSException, GEOSGeometry
 from .widgets import OpenLayersWidget
 
 
@@ -22,22 +19,18 @@ class GeometryField(forms.Field):
     geom_type = 'GEOMETRY'
 
     default_error_messages = {
-        'required' : _('No geometry value provided.'),
-        'invalid_geom' : _('Invalid geometry value.'),
-        'invalid_geom_type' : _('Invalid geometry type.'),
-        'transform_error' : _('An error occurred when transforming the geometry '
-                              'to the SRID of the geometry form field.'),
-        }
+        'required': _('No geometry value provided.'),
+        'invalid_geom': _('Invalid geometry value.'),
+        'invalid_geom_type': _('Invalid geometry type.'),
+        'transform_error': _('An error occurred when transforming the geometry '
+                             'to the SRID of the geometry form field.'),
+    }
 
     def __init__(self, **kwargs):
         # Pop out attributes from the database field, or use sensible
         # defaults (e.g., allow None).
         self.srid = kwargs.pop('srid', None)
         self.geom_type = kwargs.pop('geom_type', self.geom_type)
-        if 'null' in kwargs:
-            kwargs.pop('null', True)
-            warnings.warn("Passing 'null' keyword argument to GeometryField is deprecated.",
-                DeprecationWarning, stacklevel=2)
         super(GeometryField, self).__init__(**kwargs)
         self.widget.attrs['geom_type'] = self.geom_type
 
@@ -82,7 +75,7 @@ class GeometryField(forms.Field):
         if self.srid and self.srid != -1 and self.srid != geom.srid:
             try:
                 geom.transform(self.srid)
-            except:
+            except GEOSException:
                 raise forms.ValidationError(
                     self.error_messages['transform_error'], code='transform_error')
 
@@ -94,7 +87,7 @@ class GeometryField(forms.Field):
         try:
             data = self.to_python(data)
             initial = self.to_python(initial)
-        except ValidationError:
+        except forms.ValidationError:
             return True
 
         # Only do a geographic comparison if both values are available

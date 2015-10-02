@@ -4,24 +4,28 @@ Form components for working with trees.
 from __future__ import unicode_literals
 from django import forms
 from django.forms.forms import NON_FIELD_ERRORS
-from django.forms.util import ErrorList
 try:
     from django.utils.encoding import smart_text
-except ImportError:
+except ImportError:  # pragma: no cover (Django 1.4 compatibility)
     from django.utils.encoding import smart_unicode as smart_text
 from django.utils.html import conditional_escape, mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from mptt.exceptions import InvalidMove
+from mptt.settings import DEFAULT_LEVEL_INDICATOR
 
-__all__ = ('TreeNodeChoiceField', 'TreeNodeMultipleChoiceField', 'TreeNodePositionField', 'MoveNodeForm')
+
+__all__ = (
+    'TreeNodeChoiceField', 'TreeNodeMultipleChoiceField',
+    'TreeNodePositionField', 'MoveNodeForm',
+)
 
 # Fields ######################################################################
 
 
 class TreeNodeChoiceFieldMixin(object):
     def __init__(self, queryset, *args, **kwargs):
-        self.level_indicator = kwargs.pop('level_indicator', '---')
+        self.level_indicator = kwargs.pop('level_indicator', DEFAULT_LEVEL_INDICATOR)
 
         # if a queryset is supplied, enforce ordering
         if hasattr(queryset, 'model'):
@@ -130,7 +134,7 @@ class MoveNodeForm(forms.Form):
         if level_indicator:
             self.fields['target'].level_indicator = level_indicator
         if position_choices:
-            self.fields['position_choices'].choices = position_choices
+            self.fields['position'].choices = position_choices
 
     def save(self):
         """
@@ -147,7 +151,7 @@ class MoveNodeForm(forms.Form):
                               self.cleaned_data['position'])
             return self.node
         except InvalidMove as e:
-            self.errors[NON_FIELD_ERRORS] = ErrorList(e)
+            self.errors[NON_FIELD_ERRORS] = self.error_class(e)
             raise
 
 
@@ -162,14 +166,15 @@ class MPTTAdminForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             instance = self.instance
             opts = self._meta.model._mptt_meta
-            parent_field = self.fields[opts.parent_attr]
-            parent_qs = parent_field.queryset
-            parent_qs = parent_qs.exclude(
-                pk__in=instance.get_descendants(
-                    include_self=True
-                ).values_list('pk', flat=True)
-            )
-            parent_field.queryset = parent_qs
+            parent_field = self.fields.get(opts.parent_attr)
+            if parent_field:
+                parent_qs = parent_field.queryset
+                parent_qs = parent_qs.exclude(
+                    pk__in=instance.get_descendants(
+                        include_self=True
+                    ).values_list('pk', flat=True)
+                )
+                parent_field.queryset = parent_qs
 
     def clean(self):
         cleaned_data = super(MPTTAdminForm, self).clean()
@@ -178,7 +183,7 @@ class MPTTAdminForm(forms.ModelForm):
         if self.instance and parent:
             if parent.is_descendant_of(self.instance, include_self=True):
                 if opts.parent_attr not in self._errors:
-                    self._errors[opts.parent_attr] = forms.util.ErrorList()
+                    self._errors[opts.parent_attr] = self.error_class()
                 self._errors[opts.parent_attr].append(_('Invalid parent'))
                 del self.cleaned_data[opts.parent_attr]
         return cleaned_data

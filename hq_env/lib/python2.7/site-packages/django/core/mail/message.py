@@ -5,11 +5,13 @@ import os
 import random
 import sys
 import time
-from email import generator
-from email import charset as Charset, encoders as Encoders
+from email import (charset as Charset, encoders as Encoders,
+    message_from_string, generator)
+from email.message import Message
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
+from email.mime.message import MIMEMessage
 from email.header import Header
 from email.utils import formatdate, getaddresses, formataddr, parseaddr
 
@@ -23,7 +25,6 @@ from django.utils import six
 # some spam filters.
 utf8_charset = Charset.Charset('utf-8')
 utf8_charset.body_encoding = None  # Python defaults to BASE64
-
 
 # Default MIME type to use on attachments (if it is not explicitly given
 # and cannot be guessed).
@@ -122,7 +123,7 @@ def sanitize_address(addr, encoding):
 
 
 class MIMEMixin():
-    def as_string(self, unixfrom=False):
+    def as_string(self, unixfrom=False, linesep='\n'):
         """Return the entire formatted message as a string.
         Optional `unixfrom' when True, means include the Unix From_ envelope
         header.
@@ -132,15 +133,16 @@ class MIMEMixin():
         """
         fp = six.StringIO()
         g = generator.Generator(fp, mangle_from_=False)
-        if sys.version_info < (2, 6, 6) and isinstance(self._payload, six.text_type):
-            self._payload = self._payload.encode(self._charset.output_charset)
-        g.flatten(self, unixfrom=unixfrom)
+        if six.PY2:
+            g.flatten(self, unixfrom=unixfrom)
+        else:
+            g.flatten(self, unixfrom=unixfrom, linesep=linesep)
         return fp.getvalue()
 
     if six.PY2:
         as_bytes = as_string
     else:
-        def as_bytes(self, unixfrom=False):
+        def as_bytes(self, unixfrom=False, linesep='\n'):
             """Return the entire formatted message as bytes.
             Optional `unixfrom' when True, means include the Unix From_ envelope
             header.
@@ -150,8 +152,16 @@ class MIMEMixin():
             """
             fp = six.BytesIO()
             g = generator.BytesGenerator(fp, mangle_from_=False)
-            g.flatten(self, unixfrom=unixfrom)
+            g.flatten(self, unixfrom=unixfrom, linesep=linesep)
             return fp.getvalue()
+
+
+class SafeMIMEMessage(MIMEMixin, MIMEMessage):
+
+    def __setitem__(self, name, val):
+        # message/rfc822 attachments must be ASCII
+        name, val = forbid_multi_line_headers(name, val, 'ascii')
+        MIMEMessage.__setitem__(self, name, val)
 
 
 class SafeMIMEText(MIMEMixin, MIMEText):
@@ -284,7 +294,8 @@ class EmailMessage(object):
         into the resulting message attachments.
         """
         if isinstance(filename, MIMEBase):
-            assert content == mimetype == None
+            assert content is None
+            assert mimetype is None
             self.attachments.append(filename)
         else:
             assert content is not None
@@ -317,11 +328,26 @@ class EmailMessage(object):
     def _create_mime_attachment(self, content, mimetype):
         """
         Converts the content, mimetype pair into a MIME attachment object.
+
+        If the mimetype is message/rfc822, content may be an
+        email.Message or EmailMessage object, as well as a str.
         """
         basetype, subtype = mimetype.split('/', 1)
         if basetype == 'text':
             encoding = self.encoding or settings.DEFAULT_CHARSET
             attachment = SafeMIMEText(content, subtype, encoding)
+        elif basetype == 'message' and subtype == 'rfc822':
+            # Bug #18967: per RFC2046 s5.2.1, message/rfc822 attachments
+            # must not be base64 encoded.
+            if isinstance(content, EmailMessage):
+                # convert content into an email.Message first
+                content = content.message()
+            elif not isinstance(content, Message):
+                # For compatibility with existing code, parse the message
+                # into an email.Message object if it is not one already.
+                content = message_from_string(content)
+
+            attachment = SafeMIMEMessage(content, subtype)
         else:
             # Encode non-text attachments with base64.
             attachment = MIMEBase(basetype, subtype)
